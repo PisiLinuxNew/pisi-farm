@@ -1,5 +1,5 @@
-import json
-
+import json, glob,os
+# -*- coding:utf-8 -*-
 """
 
 """
@@ -66,11 +66,16 @@ class Commit:
     def modifiedPkg(self):
         temp = []
         for l in self.modified:
-            if l.find("/files/") > -1:
+            filename = l.split("/")[-1].strip()
+            if filename in ("index.html","README.md"):
+                pass
+            elif l.find("/files/") > -1:
                 pass
             else:
-                pkgName = l.split("/")[-2]
-                temp.append(pkgName)
+                a = l.split("/")
+                if len(a) > 2 :
+                    pkgName = l.split("/")[-2]
+                    temp.append(pkgName)
         return temp
 
     def report(self):
@@ -89,10 +94,11 @@ class Push:
 
 
     def modified(self):
-        commits = self.data['commits']
-        for l in commits:
-            temp = Commit(l)
-            self.commits[temp.id] = temp
+        if 'commits' in self.data.keys():
+            commits = self.data['commits']
+            for l in commits:
+                temp = Commit(l)
+                self.commits[temp.id] = temp
 
     def pprint(self):
         print json.dumps(self.data, indent = 4)
@@ -102,11 +108,23 @@ class Push:
         for k,v in self.commits.items():
             commits += v.html()
         commits += "</table>"
-        return commits
+        return commits.encode("utf-8")
 
+import sys
 if __name__ == "__main__":
-    x = Push('20150408040714.txt')
-    print x.html()
+    indir = sys.argv[1]
+    outfile = sys.argv[2]
+    os.chdir(indir)
+    out = open(outfile,"w")
+    out.write("<html>")
+    files = sorted(glob.glob("*.txt"))
+    for f in files:
+        x = Push(f)
+        page = x.html()
+        if len(page) > 45:
+            out.write(page)
+    out.write("</html>")
+    out.close()
     #x.pprint()
 
 

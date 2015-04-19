@@ -10,4 +10,5 @@ $f = fopen('push/'.$fname,"w");
 fwrite($f, $r);
 fclose($f);
 
+exec("python /usr/local/bin/github.py /var/www/html/push/ /var/www/html/push.html")
 ?>
