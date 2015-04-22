@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pisi Dagitik Derleme Ciftligi</title>
+    <strong><link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"></strong>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+	<h1 class="logo">Pisi Ciftligi</h1>
+	<strong><nav>
+	    <ul class="menu">
+              <li><a href="{{ url_for('home') }}">Ev</a></li>
+              <li><a href="{{ url_for('about') }}">Hakkinda</a></li>
+	    </ul>
+	</nav></strong>
+      </div>
+    </header>
+    <div class="container">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>
