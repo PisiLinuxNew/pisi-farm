@@ -90,6 +90,7 @@ class Push:
         self.data = json.loads(self.content)
         self.commits = {}
         self.modified()
+        self.ref = self.data['ref'].split("/")[-1]
         self.sender = Sender(self.data['sender'])
 
 
@@ -104,7 +105,7 @@ class Push:
         print json.dumps(self.data, indent = 4)
 
     def html(self):
-        commits = "%s <table border=1>" % self.fname
+        commits = "Tarih : %s   Branch : %s <table border=1>" % (self.fname, self.ref)
         for k,v in self.commits.items():
             commits += v.html()
         commits += "</table>"
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     os.chdir(indir)
     out = open(outfile,"w")
     out.write("<html>")
-    files = sorted(glob.glob("*.txt"))
+    files = sorted(glob.glob("*.txt"), reverse=True)
     for f in files:
         x = Push(f)
         page = x.html()
