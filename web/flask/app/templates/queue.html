@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h2>Kuyruk</h2>
+  <p>Derlenmeyi bekleyen paketler</p>
+  {% for  p in packages %}
+     <li>{{ p }} </li>
+  {% endfor %}
+{% endblock %}
