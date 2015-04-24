@@ -13,3 +13,8 @@ OPENID_PROVIDERS = [
 
 SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:system@localhost/pisi'
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+
+GITHUB_CLIENT_ID = '65e59c67b178ea45257b'
+GITHUB_CLIENT_SECRET = '6cc8509c765b5bf2ebb6203a03704f86a59ebf5a'
+GITHUB_BASE_URL = 'https://api.github.com/'
+GITHUB_AUTH_URL = 'https://github.com/login/oauth/'
