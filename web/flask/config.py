@@ -18,3 +18,14 @@ GITHUB_CLIENT_ID = '65e59c67b178ea45257b'
 GITHUB_CLIENT_SECRET = '6cc8509c765b5bf2ebb6203a03704f86a59ebf5a'
 GITHUB_BASE_URL = 'https://api.github.com/'
 GITHUB_AUTH_URL = 'https://github.com/login/oauth/'
+
+DOCKER_IMAGE_NAME = "test-image"
+DOCKERFILE = """
+test docker file
+1
+2
+3
+4
+5
+end of docker file
+"""

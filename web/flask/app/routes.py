@@ -1,6 +1,6 @@
-
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from app import app
+from app import db
 
 @app.route('/')
 def home():
@@ -12,9 +12,16 @@ def about():
 
 @app.route('/queue')
 def queue():
-  from app import db
   pkgs=["acl","attr"]
   return render_template('queue.html', packages = pkgs)
+
+@app.route('/requestPkg')
+def requestPkg():
+  pkg = "acl"
+  return pkg
+
+@app.route('/parameter'):
+  return jsonify(["docker-image": DOCKER_IMAGE, "dockerfile": DOCKERFILE])
 
 if __name__ == '__main__':
   app.run(debug=True)
