@@ -9,7 +9,6 @@ class Docker:
         self.image = ""
         self.id = None
 
-
     def logs(self):
         pout = "docker.%s.stdout" % self.id
         perr = "docker.%s.stderr" % self.id
