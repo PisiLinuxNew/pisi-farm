@@ -20,8 +20,9 @@ def requestPkg():
   pkg = "acl"
   return pkg
 
-@app.route('/parameter'):
-  return jsonify(["docker-image": DOCKER_IMAGE, "dockerfile": DOCKERFILE])
+@app.route('/parameter')
+def parameters():
+  return jsonify({"docker-image": app.config["DOCKER_IMAGE_NAME"]})
 
 if __name__ == '__main__':
   app.run(debug=True)
