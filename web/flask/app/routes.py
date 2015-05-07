@@ -30,7 +30,7 @@ def parameters():
 @app.route('/packages/<int:page>')
 def packages(page=1):
   pkglist = models.Paket.query.paginate(page, 30,False).items
-  return render_template("pkg.html", pkgs = pkglist)
+  return render_template("pkg.html", pkgs = pkglist, page=page)
 
 
 
