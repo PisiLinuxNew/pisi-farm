@@ -1,4 +1,5 @@
 import json, glob,os
+from dbmodel import *
 # -*- coding:utf-8 -*-
 """
 
@@ -31,7 +32,10 @@ class Sender:
 
 class User:
     def __init__(self,values):
-        self.username = values['username']
+        try:
+            self.username = values['username']
+        except:
+            pass
         self.name  = values['name']
         self.email = values['email']
 
@@ -75,7 +79,8 @@ class Commit:
                 a = l.split("/")
                 if len(a) > 2 :
                     pkgName = l.split("/")[-2]
-                    temp.append(pkgName)
+                    if pkgName not in temp:
+                        temp.append(pkgName)
         return temp
 
     def report(self):
@@ -120,6 +125,7 @@ if __name__ == "__main__":
     out.write("<html>")
     files = sorted(glob.glob("*.txt"), reverse=True)
     for f in files:
+        print f
         x = Push(f)
         page = x.html()
         if len(page) > 45:

@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h2>Paketler</h2>
+  <p>Butun  paketler</p>
+  <table border=1>
+    <tr><th>ID</th><th>paket adi</th><th>Aciklama</th><tr>
+  {% for  p in pkgs %}
+     <tr><td>{{ p.id }}</td><td> {{ p.adi }}</td><td>{{  p.aciklama }}</td></tr> </li>
+  {% endfor %}
+</table>
+{% endblock %}
