@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h2>Kaynak Kod Paketleri</h2>
+  <a href = "source/" > Tum liste</a>
+  <table border=1>
+    <tr><th>paket adi</th><th>Aciklama</th><th>Paketci</th><tr>
+  {% for  adi, p in pkgs %}
+     {% if packager == "all" %}
+     <tr>
+        <td><a href="/sourcepkg/{{ p.Source.Name }}">{{ p.Source.Name }}</a></td>
+        <td> {{ p.Source.Description }}</Td>
+     <td><a href="source/{{ p.Source.Packager.Name }}">{{ p.Source.Packager.Name }}</a>  </td>
+       
+     </tr> 
+     {% elif p.Source.Packager.Name == packager %}
+      <tr>
+        <td><a href="/sourcepkg/{{ p.Source.Name }}">{{ p.Source.Name }}</a></td>
+        <td> {{ p.Source.Description }}</Td>
+        <td><a href="source/{{ p.Source.Packager.Name }}">{{ p.Source.Packager.Name }}</a>  </td>
+     </tr>
+      {% endif %}
+  {% endfor %}
+</table>
+
+
+
+{% endblock %}

@@ -85,3 +85,34 @@ h3 {
   letter-spacing: -1px;
   color: #999;
 }
+table {
+            font-size:15px;
+            color:#333333;
+            width:auto;
+            border-width: 2px;
+            border-color: #729ea5;
+            border-collapse: collapse;
+            -moz-box-shadow: 0 0 40px 1px #000000;
+            -webkit-box-shadow: 0 0 40px 1px #000000;
+            box-shadow: 0 0 40px 1px #000000;}
+        table th {
+            font-family: serif;
+            font-size:15px;
+            background-color:#acc8cc;
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #729ea5;
+            text-align:left;
+        }
+        table tr {background-color:#d4e3e5;}
+        table td {
+            font-family:monospace;
+            font-size:13px;
+            border-width: 1px;
+            font-weight: bold;
+            color: #555; 
+            padding: 8px;
+            border-style: solid;
+            border-color: #729ea5;}
+        table tr:hover {background-color: #D8B9E0;}

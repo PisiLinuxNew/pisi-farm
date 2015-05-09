@@ -1,12 +1,4 @@
 from app import db
-"""
-from sqlalchemy import db.Column, ForeignKey, Boolean, Integer, db.String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
-import sqlalchemy as sql
-"""
-
  
 class Paket(db.Model):
     __tablename__ = "paket"
@@ -41,7 +33,6 @@ class Gonullu(db.Model):
     adi = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100),nullable=False)
 
-
 class Gorev(db.Model):
     __tablename__ = "gorev"
     id = db.Column(db.Integer, primary_key=True)
@@ -54,9 +45,4 @@ class Gorev(db.Model):
     kuyruk = db.relationship('Kuyruk')
 
 
-
- 
-# Create an engine that stores data in the local directory's
-# sqlalchemy_example.db file.
-#engine = create_engine('postgresql://postgres:system@localhost/pisi')
  
