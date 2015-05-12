@@ -1,7 +1,7 @@
 import urllib2
 import os
 import json
-
+import requests, sys
 
 class Docker:
     def __init__(self):
@@ -53,6 +53,22 @@ class Farm:
         bilgi = self.get("parameter")
         return json.loads(bilgi)
 
+    def dosya_gonder(self):
+        cmd = "upload"
+        fname = "to be described"
+        f = {'file': open(fname, 'rb')}                
+
+
+        r = requests.post("%s/%s" % (self.url, cmd) , files = f)
+        hash = os.popen("sha1sum %s" % sys.argv[1], "r").readlines()[0].split()[0].strip()
+        if hash == r.text.strip():
+            return True
+        else:
+            return False
+
+
+
+
 class Gonullu:
     def __init__(self, farm, dock):
         self.farm = farm
@@ -68,7 +84,21 @@ class Gonullu:
         cmd = "docker run -itd %s pisi bi -y  --ignore-safety %s" % (self.dockerImageName, self.paket)
         os.system(cmd)
 
+    def gonder(self):
+
+
+
+
+
 d = Docker()
 f = Farm("http://manap.se:5000")
 g = Gonullu(f,d)
+
+
+
+r = requests.post("http://manap.se:5000/upload", files = f)
+hash = os.popen("sha1sum %s" % sys.argv[1], "r").readlines()[0].split()[0].strip()
+if hash == r.text.strip():
+    print "gonderim basarili"
+    os.system("rm -rf %s" % sys.argv[1])
 
