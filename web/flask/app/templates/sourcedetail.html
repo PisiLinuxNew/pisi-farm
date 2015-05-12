@@ -7,49 +7,90 @@
 <h3> Source </h3>
 <hr>
 <table>
-<tr>  <th> Name</th><td> {{ pkg.Source.Name }} </td> </tr>
-<tr>  <th> Homepage</th><td><a href={{ pkg.Source.Homepage }}>{{ pkg.Source.Homepage }}</a> </td> </tr>
-<tr>  <th> Packager</th><td> {{ pkg.Source.Packager.Name}} </td> </tr>
-<tr>  <th> Type</th><td> {{ pkg.Source.IsA }} </td> </tr>
-<tr>  <th> License</th><td> {{ pkg.Source.License }} </td> </tr>
-<tr>  <th> Part Of</th><td> {{ pkg.Source.PartOf }} </td> </tr>
-<tr>  <th> Summary</th><td> {{ pkg.Source.Summary }} </td> </tr>
-<tr>  <th> Description</th><td> {{ pkg.Source.Description }} </td> </tr>
-<tr>  <th> Archive </th><td> Type:{{ pkg.Source.Archive.attrib["type"] }} Hash:{{ pkg.Source.Archive.attrib["sha1sum"] }}</td> </tr>
-<tr>  <th> Archive Url</th><td><a href={{ pkg.Source.Archive }}>{{ pkg.Source.Archive }}</a> </td> </tr>
-{% if pkg.Source.find("BuildDependencies") %}
-<tr>  <th> Build Dependencies</th>
-   <td> 
-     {% for dep in pkg.Source.BuildDependencies.iterchildren() %}
-        {{ dep }} <br>
-     {% endfor %}
-   </td> 
-</tr>
-{% endif %}
+  <tr>  
+    <th> Name</th>
+    <td> {{ pkg.Source.Name }} </td> 
+  </tr>
+  <tr>  
+    <th> Homepage</th>
+    <td><a href={{ pkg.Source.Homepage }}>{{ pkg.Source.Homepage }}</a> </td> 
+  </tr>
+  <tr>  
+    <th> Packager</th>
+    <td> {{ pkg.Source.Packager.Name}} </td> 
+  </tr>
+  <tr>  
+    <th> Type</th>
+    <td> {{ pkg.Source.IsA }} </td> 
+  </tr>
+  <tr>  
+    <th> License</th>
+    <td> {{ pkg.Source.License }} </td> 
+  </tr>
+  <tr>  
+    <th> Part Of</th>
+    <td> {{ pkg.Source.PartOf }} </td> 
+  </tr>
+  <tr>  
+    <th> Summary</th>
+    <td> {{ pkg.Source.Summary }} </td> 
+  </tr>
+  {% for t in pkg.Source.iterchildren() %}
+     {% if t.tag == "Description" %}
+        <tr>  
+	  <th> Description [{{ t.attrib.values()[0] }}] </th>
+	  <td> {{ t }} </td> 
+	</tr>  
+     {% endif %}
+  {% endfor %}
 
-{% if  pkg.Source.find("RuntimeDependencies") %}
-<tr>  <th> Runtime Dependencies</th>
-   <td>
-     {% for dep in pkg.Source.RuntimeDependencies.iterchildren() %}
-     {{ dep }} <br>
-     {% endfor %}
-   </td>
-</tr>
-{% endif %}
+  <tr>  
+    <th> Archive </th>
+    <td> Type:{{ pkg.Source.Archive.attrib["type"] }} Hash:{{ pkg.Source.Archive.attrib["sha1sum"] }}</td> 
+  </tr>
+  <tr>  
+    <th> Archive Url</th>
+    <td><a href={{ pkg.Source.Archive }}>{{ pkg.Source.Archive }}</a> </td> 
+  </tr>
 
-{% if  pkg.Source.find("Patches") %}
-<tr>  <th> Patches</th>
-   <td>
-     {% for patch in pkg.Source.Patches.iterchildren() %}
-        {{ patch  }} <br>
-     {% endfor %}
-   </td>
-</tr>
-{% endif %}
+  {% if pkg.Source.find("BuildDependencies") %}
+    <tr>  
+      <th> Build Dependencies</th>
+      <td> {% for dep in pkg.Source.BuildDependencies.iterchildren() %}
+            {{ dep }} <br>
+           {% endfor %}
+      </td> 
+    </tr>
+  {% endif %}
 
-{% if  pkg.Source.find("SourceURI") %}
-   <tr>  <th> pspec.xml URI</th> <td> {{ pkg.Source.SourceURI }} </td> </tr>
-{% endif %}
+  {% if  pkg.Source.find("RuntimeDependencies") %}
+   <tr>  
+     <th> Runtime Dependencies</th>
+     <td>
+        {% for dep in pkg.Source.RuntimeDependencies.iterchildren() %}
+           {{ dep }} <br>
+        {% endfor %}
+     </td>
+   </tr>
+  {% endif %}
+
+  {% if  pkg.Source.find("Patches") %}
+    <tr>  
+      <th> Patches</th>
+      <td>
+	{% for patch in pkg.Source.Patches.iterchildren() %}
+          {{ patch  }} <br>
+	{% endfor %}
+      </td>
+    </tr>
+  {% endif %}
+
+  {% if  pkg.Source.find("SourceURI") %}
+    <tr>  
+      <th> pspec.xml URI</th> 
+      <td> <a href=https://github.com/ertugerata/PisiLinux/raw/Pisi-2.0/{{ pkg.Source.SourceURI }}> {{ pkg.Source.SourceURI }} </a></td> 
+    </tr>
+  {% endif %}
 </table>
 
 </p>
@@ -105,17 +146,18 @@
        {% endif %}
 
        {% if  p.find("AdditionalFiles") %}
+	  {% for f in p.AdditionalFiles.iterchildren() %}
           <tr>  
 	    <th> Additional File</th>
 	    <td>
-	      {% for f in p.AdditionalFiles.iterchildren() %}
    	         File : {{ f }} <br>
 	          {% for attr, val in f.attrib.items() %}
                     {{ attr }} : {{ val }} <br>
 	          {% endfor %}
 	    </td>
-	      {% endfor %}
+
 	  </tr>
+	  {% endfor %}
       {% endif %}
 
   </table>
