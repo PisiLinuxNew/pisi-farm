@@ -4,11 +4,28 @@ from werkzeug import secure_filename
 from app import app
 from app import db, models
 from app import pisi
+from app.models import *
+from github import Push
+from sqlalchemy.orm import sessionmaker
+
+session = sessionmaker()
+session.configure(bind = db.engine)
+s = session()
 
 ALLOWED_EXTENSIONS = set(['pisi','log','err'])
 
+
+
 def allowed_file( filename ):
   return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+def paketID(pname):
+  id = models.Paket.query.filter_by(adi = pname).first().id
+  return id
+
+def commitCheck(pkgid, commitid):
+  sonuc = models.Kuyruk.query.filter_by(paket_id=pkgid, commit_id=commitid).count()
+  return sonuc
 
 @app.route('/')
 def home():
@@ -20,8 +37,11 @@ def about():
 
 @app.route('/queue')
 def queue():
-  pkgs=["acl","attr"]
-  return render_template('queue.html', packages = pkgs)
+  vals = s.query(models.Kuyruk).join(models.Paket).all()
+  q = vals[0]
+  print q.paket.adi
+  
+  return render_template('queue.html', packages = vals)
 
 @app.route('/requestPkg')
 def requestPkg():
@@ -68,45 +88,26 @@ def sources(packager = "all"):
 
   return render_template("sourcepkg.html", pkgs =sorted(temp), packager = packager)
 
+@app.route('/gitcommit/<string:fname>')
+def gitcommit(fname):
+  f = "/var/www/html/pisi-2.0/%s" % fname
+  p = Push(f)
+  d = p.db()
+  bra = p.ref
+  rep = p.data['repository']["full_name"]
+  tar = p.data['repository']['updated_at']
+  for _id, com in p.db().items():
+    id = com['id']
+    url = com['url']
+    for pkg in com['modified']:
+      pkgid = paketID(pkg)
+      if commitCheck(pkgid, id) == 0:
+        k = models.Kuyruk(tarih = tar, paket_id = pkgid, commit_id = id, \
+                          commit_url = url, durum = 0, repository = rep, \
+                          branch = bra)
+        s.add(k)
+        s.commit()
+  return p.ref
+
 if __name__ == '__main__':
   app.run(debug=True)
-
-
-
-"""
-
-
-
-import os
-from flask import Flask, request, redirect, url_for
-from werkzeug import secure_filename
- 
-UPLOAD_FOLDER = '/tmp/'
-ALLOWED_EXTENSIONS = set(['txt'])
- 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
- 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
- 
-@app.route("/", methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('index'))
-    return ""
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    <p>%s</p>
-    "" % "<br>".join(os.listdir(app.config['UPLOAD_FOLDER'],))
-"""

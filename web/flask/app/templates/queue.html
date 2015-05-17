@@ -3,7 +3,25 @@
 {% block content %}
   <h2>Kuyruk</h2>
   <p>Derlenmeyi bekleyen paketler</p>
-  {% for  p in packages %}
-     <li>{{ p }} </li>
+<table border=1>
+<tr>
+   <th>Tarih</th>
+   <th>Repo</th>
+   <th>Branch</th>
+   <th>Paket</th>
+   <th>Commit</th>
+   <th>Durum</th>
+</tr>
+  {% for p   in packages %}
+<tr>
+  <td>{{ p.tarih       }}</td>
+  <td>{{ p.repository  }}</td>
+  <td>{{ p.branch      }}</td>
+  <td>{{ p.paket.adi   }}</td>
+  <td><a href = {{ p.commit_url }}>{{ p.commit_id   }}</a></td>
+  <td>{{ p.durum  }} </td>
+</tr>
+
   {% endfor %}
+</table>
 {% endblock %}

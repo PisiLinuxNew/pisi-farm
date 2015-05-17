@@ -1,4 +1,6 @@
 from app import db
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
  
 class Paket(db.Model):
     __tablename__ = "paket"
@@ -15,6 +17,8 @@ class Kuyruk(db.Model):
     commit_id = db.Column(db.String(40))
     commit_url = db.Column(db.String(100))
     durum = db.Column(db.Integer, default = 0)
+    repository = db.Column(db.String(150))
+    branch = db.Column(db.String(100))
     # 0 waiting 
     # 1 waiting partial
     # 100 in progress 
@@ -44,5 +48,5 @@ class Gorev(db.Model):
     kuyruk_id = db.Column(db.Integer, db.ForeignKey("kuyruk.id"))
     kuyruk = db.relationship('Kuyruk')
 
-
+engine = create_engine('postgresql://postgres:system@localhost/pisi')
  

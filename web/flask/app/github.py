@@ -1,9 +1,6 @@
 import json, glob,os
-from app import db, models
 # -*- coding:utf-8 -*-
-"""
 
-"""
 class Sender:
     def __init__(self, values):
         self.values = values
@@ -88,6 +85,12 @@ class Commit:
         for l in self.modified:
             print "    ",l
 
+    def db(self):
+        if len(self.modifiedPackages) > 0:
+            return {"id" : self.id, "url" : self.url, "modified" : self.modifiedPackages}
+        return None
+
+
 class Push:
     def __init__(self,  fname):
         self.fname = fname
@@ -98,6 +101,13 @@ class Push:
         self.ref = self.data['ref'].split("/")[-1]
         self.sender = Sender(self.data['sender'])
 
+    def db(self):
+        temp = {}
+        for c, com in self.commits.items():
+            d = com.db()
+            if d != None:
+                temp[d["id"]] = d
+        return temp
 
     def modified(self):
         if 'commits' in self.data.keys():
