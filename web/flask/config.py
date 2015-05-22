@@ -21,11 +21,7 @@ GITHUB_AUTH_URL = 'https://github.com/login/oauth/'
 
 DOCKER_IMAGE_NAME = "ertugerata/pisi-chroot-farm"
 
-REPOS = {'0':{'url' : 'https://github.com/ertugerata/', 
-          'branch' : 'Pisi-2.0',
-          'dockerimage' : 'ertugerata/pisi-chroot-farm',
-          'repo' : 'https://github.com/ertugerata/PisiLinux/raw/Pisi-2.0/pisi-index.xml.xz' },
-         '1':{'url' : 'https://github.com/pisilinux/PisiLinux',
+REPOS = {'0':{'repo' : 'pisilinux/core', 
           'branch' : 'master',
-          'dockerimage' : 'None',
-          'repo' : 'None'} }
+          'dockerimage' : 'ertugerata/pisi-chroot-farm',
+          'repo_url' : 'https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz' }}

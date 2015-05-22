@@ -89,7 +89,7 @@ class Commit:
 
     def db(self):
         if len(self.modifiedPackages) > 0:
-            return {"id" : self.id, "url" : self.url, "modified" : self.modifiedPackages}
+            return {"timestamp": self.timestamp, "id" : self.id, "url" : self.url, "modified" : self.modifiedPackages}
         return None
 
 
@@ -105,10 +105,10 @@ class Push:
 
     def db(self):
         temp = {}
-        for c, com in self.commits.items():
-            d = com.db()
-            if d != None:
-                temp[d["id"]] = d
+        last = sorted(self.commits.keys())[-1]
+        d = self.commits[last].db()
+        if d != None:
+            temp[d["id"]] = d
         return temp
 
     def modified(self):
@@ -116,7 +116,7 @@ class Push:
             commits = self.data['commits']
             for l in commits:
                 temp = Commit(l)
-                self.commits[temp.id] = temp
+                self.commits[temp.timestamp] = temp
 
     def pprint(self):
         print json.dumps(self.data, indent = 4)

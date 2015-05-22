@@ -14,6 +14,11 @@ s = session()
 
 ALLOWED_EXTENSIONS = set(['pisi','log','err'])
 
+def check_branch(r, b):
+  for k,v in app.config["REPOS"].items():
+    if ((v['repo'] == r) and (v['branch'] == b)):
+      return True
+  return False
 
 
 def allowed_file( filename ):
@@ -60,8 +65,10 @@ def requestPkg(email):
   yeniGorev = Gorev(gonullu_id=gonullu_id, kuyruk_id = kuyruk.id)
   s.add(yeniGorev)
   s.flush()
+  paketadi = s.query(Paket).filter(Paket.id == kuyruk.paket_id).first().adi
   s.commit()
-  return str(kuyruk.paket_id)
+  cevap = {'paket': paketadi, 'repo': kuyruk.repository, 'branch': kuyruk.branch }
+  return jsonify(cevap)
 
 @app.route('/parameter')
 def parameters():
@@ -105,24 +112,25 @@ def sources(packager = "all"):
 
 @app.route('/gitcommit/<string:fname>')
 def gitcommit(fname):
-  f = "/var/www/html/pisi-2.0/%s" % fname
+  f = "/var/www/html/push/%s" % fname
   p = Push(f)
   d = p.db()
   bra = p.ref
-  rep = p.data['repository']["full_name"]
-  tar = p.data['repository']['updated_at']
-  for _id, com in p.db().items():
-    id = com['id']
-    url = com['url']
-    for pkg in com['modified']:
-      pkgid = paketID(pkg)
-      if commitCheck(pkgid, id) == 0:
-        k = models.Kuyruk(tarih = tar, paket_id = pkgid, commit_id = id, \
-                          commit_url = url, durum = 0, repository = rep, \
-                          branch = bra)
-        s.add(k)
-        s.commit()
-  return p.ref
+  rep = p.data['repository']["full_name"].replace("https://github.com/","")
+  if check_branch(rep, bra) == True:
+    tar = p.data['repository']['updated_at']
+    for _id, com in p.db().items():
+      id = com['id']
+      url = com['url']
+      for pkg in com['modified']:
+        pkgid = paketID(pkg)
+        if commitCheck(pkgid, id) == 0:
+          k = models.Kuyruk(tarih = tar, paket_id = pkgid, commit_id = id, \
+                              commit_url = url, durum = 0, repository = rep, \
+                              branch = bra)
+          s.add(k)
+          s.commit()
+    return p.ref
 
 if __name__ == '__main__':
   app.run(debug=True)

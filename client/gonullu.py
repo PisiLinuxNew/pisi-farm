@@ -38,8 +38,6 @@ class Farm:
     def __init__(self, farm_url):
         self.url = farm_url
         self.params = self.parametre()
-        print self.params
-        sys.exit()
 
     def get(self, cmd):
         return urllib2.urlopen("%s/%s" % (self.url, cmd)).read()
@@ -52,6 +50,11 @@ class Farm:
         bilgi = self.get("parameter")
         return json.loads(bilgi)
     
+    def docker_adi(self, repo, branch):
+        for k,v in self.params.items():
+            if ((v['repo'] == repo ) and (v['branch'] == branch)):
+                return v['dockerimage']
+        return None
 
     def dosya_gonder(self, fname):
         cmd = "upload"
@@ -76,7 +79,7 @@ class Gonullu:
     def __init__(self, farm, dock):
         self.farm = farm
         self.paket = None
-        self.dockerImageName = self.farm.params['docker-image']
+        self.dockerImageName = None 
         self.docker = dock
         self.volumes = {'/var/cache/pisi/packages': '/var/cache/pisi/packages',
                         '/var/cache/pisi/archives': '/var/cache/pisi/archives',
@@ -86,7 +89,9 @@ class Gonullu:
         self.gonder()
 
     def paketAl(self):
-        self.paket = self.farm.kuyruktanPaketAl()
+        d = self.farm.kuyruktanPaketAl()
+        self.paket = d['paket']
+        self.dockerImageName = self.farm.docker_adi(d['repo'], d['branch'])
         self.volumes['/root'] = '/tmp/%s' % ( self.paket)
 
     def volumes_str(self):
