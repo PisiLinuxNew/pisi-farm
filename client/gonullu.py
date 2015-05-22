@@ -38,6 +38,8 @@ class Farm:
     def __init__(self, farm_url):
         self.url = farm_url
         self.params = self.parametre()
+        print self.params
+        sys.exit()
 
     def get(self, cmd):
         return urllib2.urlopen("%s/%s" % (self.url, cmd)).read()
@@ -49,6 +51,7 @@ class Farm:
     def parametre(self):
         bilgi = self.get("parameter")
         return json.loads(bilgi)
+    
 
     def dosya_gonder(self, fname):
         cmd = "upload"

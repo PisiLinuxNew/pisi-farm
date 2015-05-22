@@ -20,11 +20,11 @@ def allowed_file( filename ):
   return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def paketID(pname):
-  id = models.Paket.query.filter_by(adi = pname).first().id
+  id = Paket.query.filter_by(adi = pname).first().id
   return id
 
 def commitCheck(pkgid, commitid):
-  sonuc = models.Kuyruk.query.filter_by(paket_id=pkgid, commit_id=commitid).count()
+  sonuc = Kuyruk.query.filter_by(paket_id=pkgid, commit_id=commitid).count()
   return sonuc
 
 @app.route('/')
@@ -35,27 +35,42 @@ def home():
 def about():
   return render_template('about.html')
 
-@app.route('/queue')
-def queue():
-  vals = s.query(models.Kuyruk).join(models.Paket).all()
-  q = vals[0]
-  print q.paket.adi
-  
+@app.route('/compiling')
+def compiling():
+  vals = s.query(Kuyruk).filter(Kuyruk.durum == 100).join(Paket).order_by(Kuyruk.tarih.asc()).all()
   return render_template('queue.html', packages = vals)
 
-@app.route('/requestPkg')
-def requestPkg():
-  pkg = "acl"
-  return pkg
+@app.route('/queue')
+def queue():
+  vals = s.query(Kuyruk).filter(Kuyruk.durum < 101).join(Paket).order_by(Kuyruk.tarih.asc()).all()
+  return render_template('queue.html', packages = vals)
+
+@app.route('/requestPkg/<string:email>')
+def requestPkg(email):
+  try:
+    gonullu_id = s.query(Gonullu).filter(Gonullu.email == email).one().id
+  except:
+    return "ilkermanap@gmail.com adresine mektup atarak gonullu olmak istediginizi belirtin"
+  kuyruk = s.query(Kuyruk).filter(Kuyruk.durum < 100).order_by(Kuyruk.id.asc()).first()
+  k = s.query(Kuyruk)
+  k = k.filter(Kuyruk.id == kuyruk.id)
+  kayit = k.one()
+  kayit.durum = 100
+  s.flush()
+  yeniGorev = Gorev(gonullu_id=gonullu_id, kuyruk_id = kuyruk.id)
+  s.add(yeniGorev)
+  s.flush()
+  s.commit()
+  return str(kuyruk.paket_id)
 
 @app.route('/parameter')
 def parameters():
-  return jsonify({"docker-image": app.config["DOCKER_IMAGE_NAME"]})
+  return jsonify(app.config["REPOS"])
 
 @app.route('/packages')
 @app.route('/packages/<int:page>')
 def packages(page=1):
-  pkglist = models.Paket.query.paginate(page, 30,False).items
+  pkglist = Paket.query.paginate(page, 30,False).items
   return render_template("pkg.html", pkgs = pkglist, page=page)
 
 @app.route('/sourcepkg/<string:pkgname>')

@@ -19,7 +19,17 @@
   <td>{{ p.branch      }}</td>
   <td>{{ p.paket.adi   }}</td>
   <td><a href = {{ p.commit_url }}>{{ p.commit_id   }}</a></td>
-  <td>{{ p.durum  }} </td>
+  <td>
+    {% if p.durum  == 0 %}
+   Bekliyor.
+    {% endif %}
+    {% if p.durum  == 1 %}
+   Bir kismi bitti, bekliyor.
+    {% endif %}
+    {% if p.durum  == 100 %}
+   Calisiyor
+    {% endif %}
+ </td>
 </tr>
 
   {% endfor %}

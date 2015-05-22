@@ -74,8 +74,10 @@ class Commit:
                 pass
             else:
                 a = l.split("/")
+                print ">>>",self.id,  l
                 if len(a) > 2 :
                     pkgName = l.split("/")[-2]
+                    print temp
                     if pkgName not in temp:
                         temp.append(pkgName)
         return temp
