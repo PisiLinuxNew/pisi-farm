@@ -20,6 +20,7 @@
   <td>{{ p.paket.adi   }}</td>
   <td><a href = {{ p.commit_url }}>{{ p.commit_id   }}</a></td>
   <td>
+
     {% if p.durum  == 0 %}
    Bekliyor.
     {% endif %}
@@ -29,6 +30,17 @@
     {% if p.durum  == 100 %}
    Calisiyor
     {% endif %}
+    {% if p.durum  == 101 %}
+    <a href= /compiledetail/{{ p.id }}> 
+   Basarisiz
+    </a>
+    {% endif %}
+    {% if p.durum  == 999 %}
+    <a href= /compiledetail/{{ p.id }}> 
+   Basarili 
+    </a>
+    {% endif %}
+
  </td>
 </tr>
 

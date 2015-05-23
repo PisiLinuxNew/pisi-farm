@@ -25,3 +25,5 @@ REPOS = {'0':{'repo' : 'pisilinux/core',
           'branch' : 'master',
           'dockerimage' : 'ertugerata/pisi-chroot-farm',
           'repo_url' : 'https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz' }}
+
+UPLOAD_FOLDER = "/var/www/html/pisi-upload/"

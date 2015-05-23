@@ -47,7 +47,7 @@ def compiling():
 
 @app.route('/queue')
 def queue():
-  vals = s.query(Kuyruk).filter(Kuyruk.durum < 101).join(Paket).order_by(Kuyruk.tarih.asc()).all()
+  vals = s.query(Kuyruk).filter(Kuyruk.durum < 999).join(Paket).order_by(Kuyruk.tarih.asc()).all()
   return render_template('queue.html', packages = vals)
 
 @app.route('/requestPkg/<string:email>')
@@ -67,7 +67,7 @@ def requestPkg(email):
   s.flush()
   paketadi = s.query(Paket).filter(Paket.id == kuyruk.paket_id).first().adi
   s.commit()
-  cevap = {'paket': paketadi, 'repo': kuyruk.repository, 'branch': kuyruk.branch }
+  cevap = {'kuyruk_id': kuyruk.id, 'paket': paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch }
   return jsonify(cevap)
 
 @app.route('/parameter')
@@ -94,11 +94,31 @@ def upload():
     file = request.files['file']
     if file and allowed_file(file.filename):
       filename = secure_filename(file.filename)
-      f = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+      commit_id = filename.split("-")[0]
+      k = s.query(Kuyruk).filter(commit_id == commit_id).first()    
+      p = os.path.join(app.config['UPLOAD_FOLDER'], k.repository, k.branch)   
+      os.system("mkdir -p %s" % p)
+      f = os.path.join(p, filename)
       file.save(f)
       hash = os.popen("sha1sum %s" % f, "r").readlines()[0].split()[0].strip()
       return hash 
 
+@app.route("/updaterunning/", methods = ['GET'])
+def updaterunning():
+  kid = int(request.args.get('id'))
+  stat = int(request.args.get('state'))
+  if stat == 0:
+    basari = 999 # success
+  else:
+    basari = 101 # fail
+    
+  k = s.query(Kuyruk)
+  k = k.filter(Kuyruk.id == kid)
+  kayit = k.first()
+  kayit.durum = basari
+  s.flush()
+  s.commit()
+  return "ok"
 
 @app.route('/source')
 @app.route('/source/<string:packager>')
@@ -131,6 +151,12 @@ def gitcommit(fname):
           s.add(k)
           s.commit()
     return p.ref
+
+@app.route("/compiledetail/<int:id>")
+def compiledetail(id):
+  k = s.query(Kuyruk).filter(Kuyruk.id == id).first()
+  paket = s.query(Paket).filter(Paket.id == k.paket_id).first().adi
+  return render_template("compiledetail.html", paket=paket, kuyruk = k)
 
 if __name__ == '__main__':
   app.run(debug=True)
