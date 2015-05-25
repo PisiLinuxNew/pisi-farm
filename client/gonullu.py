@@ -14,6 +14,12 @@ class Docker:
     def setImageName(self, newName):
         self.image = newName
 
+    def retrieve(self):
+        if self.image != "":
+            if self.check() == 0:
+                cmd = "docker pull %s" % self.image
+                os.system(cmd)
+
     def check(self):
         cmd = "docker ps >/dev/null"
         status = os.system(cmd)
@@ -98,6 +104,8 @@ class Gonullu:
         self.repo = d['repo']
         self.branch = d['branch']
         self.dockerImageName = self.farm.docker_adi(d['repo'], d['branch'])
+        self.docker.setImageName(self.dockerImageName)
+        self.docker.retrieve()
         self.commit_id = d['commit_id']
         self.kuyruk_id = d['kuyruk_id']
         self.volumes['/root'] = '/tmp/%s' % ( self.paket)
@@ -125,8 +133,8 @@ class Gonullu:
             calisma , basari =  self.calisma_kontrol()
             if calisma == 0:
                 calisiyor = False
-                print "calisma bitmis"
-                cmd = "updaterunning?id=%s&state=%s" % (self.kuyruk_id, basari)
+                time.sleep(5)
+		cmd = "updaterunning?id=%s&state=%s" % (self.kuyruk_id, basari)
                 self.farm.get(cmd)
                 return 
             print "hala calisiyor"

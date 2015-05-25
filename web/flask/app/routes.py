@@ -47,7 +47,7 @@ def compiling():
 
 @app.route('/queue')
 def queue():
-  vals = s.query(Kuyruk).filter(Kuyruk.durum < 999).join(Paket).order_by(Kuyruk.tarih.asc()).all()
+  vals = s.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.tarih.asc()).all()
   return render_template('queue.html', packages = vals)
 
 @app.route('/requestPkg/<string:email>')
@@ -151,6 +151,7 @@ def gitcommit(fname):
           s.add(k)
           s.commit()
     return p.ref
+  return p.ref
 
 @app.route("/compiledetail/<int:id>")
 def compiledetail(id):
