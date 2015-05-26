@@ -125,7 +125,7 @@ class Gonullu:
 
     def derle(self):
         pkg = self.paketAl()
-        cmd = "docker run -id %s %s /derle/derle.sh %s %s" % (self.volumes_str(), self.dockerImageName, self.paket, self.commit_id)
+        cmd = "docker run -id --name %s-sil %s %s /derle/derle.sh %s %s" % ( self.paket,  self.volumes_str(), self.dockerImageName, self.paket, self.commit_id)
         status = os.system(cmd)
         calisiyor = True
         while calisiyor == True:
@@ -143,6 +143,10 @@ class Gonullu:
         liste = glob.glob("/tmp/%s/*.[lpe]*" % self.paket)
         print liste
         self.farm.dosyalari_gonder(liste, self.repo, self.branch)
+        temizle = "docker rm %s-sil" % self.paket
+        os.system(temizle)
+        tmptemizle = "rm -rf /tmp/%s" % self.paket
+        os.system(tmptemizle)
 
 d = Docker()
 f = Farm("http://manap.se:5000")
