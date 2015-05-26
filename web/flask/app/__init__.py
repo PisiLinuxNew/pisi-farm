@@ -6,6 +6,6 @@ from lxml import objectify
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
-pisi = objectify.fromstring(open("/root/pisi-index.xml").read())
+pisi = objectify.fromstring(open("pisi-index.xml").read())
 
 from app import routes
