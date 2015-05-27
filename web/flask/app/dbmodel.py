@@ -5,14 +5,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 import sqlalchemy as sql
- 
+
+
 Base = declarative_base()
  
 class Paket(Base):
     __tablename__ = "paket"
     id = Column(Integer, primary_key=True)
     adi = Column(String(100), nullable=False)
-    aciklama = Column(String(200), nullable = False)
+    aciklama = Column(String(200), nullable=False)
 
 class Kuyruk(Base):
     __tablename__ = "kuyruk"

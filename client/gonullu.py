@@ -34,11 +34,15 @@ class Docker:
             cmd1 = "sudo cgroupfs-mount"
             cmd2 = "docker -d &"
             print "Mounting cgroupfs"
-            os.system(cmd1)
+            stat1 = os.system(cmd1)
             print "Starting docker daemon"
-            os.system(cmd2)
+            stat2 = os.system(cmd2)
+            if (stat2 == 0):
+                return True
         else:
             print "Docker already started"
+            return True
+        return False
 
 class Farm:
     def __init__(self, farm_url):
@@ -124,17 +128,17 @@ class Gonullu:
         return (status, self.basari)
 
     def derle(self):
-        pkg = self.paketAl()
+        self.paketAl()
         cmd = "docker run -id --name %s-sil %s %s /derle/derle.sh %s %s" % ( self.paket,  self.volumes_str(), self.dockerImageName, self.paket, self.commit_id)
         status = os.system(cmd)
         calisiyor = True
-        while calisiyor == True:
+        while calisiyor:
             time.sleep(10)
             calisma , basari =  self.calisma_kontrol()
             if calisma == 0:
                 calisiyor = False
                 time.sleep(5)
-		cmd = "updaterunning?id=%s&state=%s" % (self.kuyruk_id, basari)
+                cmd = "updaterunning?id=%s&state=%s" % (self.kuyruk_id, basari)
                 self.farm.get(cmd)
                 return 
             print "hala calisiyor"
