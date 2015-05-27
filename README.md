@@ -1,15 +1,21 @@
 # pisi-farm
 Next generation pisi farm system
 
-
 - [Abstract] (#Abstract)
-- [Requirements] (#Requierements)
+- [Requirements] (#Requirements)
 - [Installation] (#Installation)
     * [Virtualenv] (#Virtualenv)
     * [Flask] (#Flask)
-    * [SqlAlchemy] (#SqlAlchemy)
     * [Database] (#Database)
     * [lxml] (#lxml)
+
+* * *
+
+- [Özet] (#Özet)  
+- [Gereksinimler] (#Gereksinimler)
+- [Kurulum] (#Kurulum)
+    * [Virtualenv Sanal ortamı] (#Virtualenv-Sanal-ortamı)
+    * [Flask  Kurulumu] (#Flask-Kurulumu) 
   
 ## Abstract ##
 Current farm system that builds the packages for the PisiLinux distribution 
@@ -48,7 +54,6 @@ Then we can create our environment inside a directory:
 
     $ mkdir pisifarm
     $ cd pisifarm
-    $ virtualenv venv
     $ virtualenv venv
     New python executable in venv/bin/python
     Installing setuptools, pip...done.
@@ -115,10 +120,121 @@ For mysql:
 
 
 ### lxml ###
+lxml was used for parsing the pisi-index.xml files.
 lxml python package requires libxml2-devel package:
 
     (venv)ilker@pisi pisifarm $ sudo pisi it libxml2-devel libxslt-devel
     (venv)ilker@pisi pisifarm $ pip install lxml 
     
-lxml was used for parsing the pisi-index.xml files.
 
+# Türkçe #
+
+## Özet ##
+Halihazırda kullanılan pisi paketlerini derleme sisteminin bazı eksiklikleri 
+bulunmaktadır. Tasarlanan yeni yaklaşım, bize daha fazla esneklik sağlayacak, 
+ ve halen kullanılan sistemin eksikliklerini de kapatacaktır. Örneğin, yeni 
+ sistemde, gönüllü kullanıcılar derlenmek üzere bekleyen paketleri kendi 
+ sistemlerinde bir docker imajı içinde derleyebileceklerdir.
+ 
+ Tüm sistem, github commit işlemi ile tetiklenecektir. Commit işlemi bilgileri
+ parse edilecek, o commit işlemi ile değişikliğe uğramış paketler tespit 
+ edilerek, derleme kuyruğuna alınacaklardır. Son kullanıcılarda çalışan bir
+ uygulama, derleme kuyruğunu sürekli olarak kontrol ederek, kuyruğa eklenmiş olan
+ paketlerin derlenmesi  işlemini o repository ve branch icin belirlenmiş olan docker 
+ imajı içinde başlatacaktır. Derleme işlemi sonucunda ortaya çıkacak olan log ve 
+ pisi dosyaları merkezde bulunan sunucuya dosya upload işlemi ile gonderilecektir.
+ 
+## Gereksinimler ##
+* virtualenv
+* Flask 
+* SqlAlchemy
+* Database ( Sqlite, mysql veya postgresql)
+* lxml 
+
+## Kurulum ##
+Kurulum için bazı python modüllerinin kurulması gerekmektedir. Bu modüller pisi 
+deposunda da bulunmadıkları için, önce python-setuptools paketi kurulacaktır:
+
+    $ sudo pisi it  python-setuptools
+
+### Virtualenv Sanal ortamı ###
+Virtualenv ile, her bir proje için gerekli olacak python modülleri, gerçek sisteme
+kurulmasına gerek kalmadan, bir dizin altına kurulup kullanılabilmektedir:
+
+    $ sudo easy_install virtualenv
+
+Virtualenv uygulaması kurulduktan sonra, kendi uygulamamızın bulunacağı dizini 
+hazırlarız:
+
+    $ mkdir pisifarm
+    $ cd pisifarm
+    $ virtualenv venv
+    New python executable in venv/bin/python
+    Installing setuptools, pip...done.
+
+Sanal ortama geçiş yapmak için:
+
+    $ source venv/bin/activate
+    (venv)ilker@pisi pisifarm $ 
+
+Burada promptun nasıl değiştiğine dikkat edin. Böylece sanal ortamın içinde olduğunuzu 
+anlayabilirsiniz. Bu aşamada, python, easy_install, pip gibi komutları kullandığınzda, 
+gerçek sisteme değil, venv dizini altına modüller kurulacaktır.
+
+### Flask  Kurulumu ###
+Sanal ortam içinde uygulamamız için gerekli olan diğer modülleri de yükleriz.
+
+    (venv)ilker@pisi pisifarm $ pip install flask
+    You are using pip version 6.1.1, however version 7.0.1 is available.
+    You should consider upgrading via the 'pip install --upgrade pip' command.
+    Collecting flask
+        Using cached Flask-0.10.1.tar.gz
+    Collecting Werkzeug>=0.7 (from flask)
+        Using cached Werkzeug-0.10.4-py2.py3-none-any.whl
+    Collecting Jinja2>=2.4 (from flask)
+        Using cached Jinja2-2.7.3.tar.gz
+    Collecting itsdangerous>=0.21 (from flask)
+        Using cached itsdangerous-0.24.tar.gz
+    Collecting markupsafe (from Jinja2>=2.4->flask)
+        Using cached MarkupSafe-0.23.tar.gz
+    Installing collected packages: Werkzeug, markupsafe, Jinja2, itsdangerous, flask
+        Running setup.py install for markupsafe
+        Running setup.py install for Jinja2
+        Running setup.py install for itsdangerous
+        Running setup.py install for flask
+        Successfully installed Jinja2-2.7.3 Werkzeug-0.10.4 flask-0.10.1 itsdangerous-0.24 markupsafe-0.23
+    (venv)ilker@pisi pisifarm $
+
+Flask  kullanabilmek için aşağıdaki paketler de gerekecektir:
+
+    (venv)ilker@pisi pisifarm $ pip install flask-login
+    (venv)ilker@pisi pisifarm $ pip install flask-mail
+    (venv)ilker@pisi pisifarm $ pip install flask-whooshalchemy
+    (venv)ilker@pisi pisifarm $ pip install flask-wtf
+    (venv)ilker@pisi pisifarm $ pip install flask-babel
+    (venv)ilker@pisi pisifarm $ pip install flask-sqlalchemy
+    
+    
+### Veritabanı ###
+Test ortamında kolaylık olması için sqlite kullanacağız, ancak gerçek sistemde 
+postgresql kullanılacaktır.
+
+    (venv)ilker@pisi pisifarm $ pip install pysqlite
+    
+Postgresql için:
+    
+    (venv)ilker@pisi pisifarm $ pip install psycopg2
+
+Mysql için:
+
+    (venv)ilker@pisi pisifarm $ pip install MySQL-python 
+
+
+### lxml Kurulumu ###
+lxml paketi, pisi-index.xml dosyasını okumak için kullanılmıştır. Bu paketin 
+kurulumu için, libxml2-devel ve libxslt-devel paketlerinin de sistemde kurulu olması 
+gerekmektedir:
+
+    (venv)ilker@pisi pisifarm $ sudo pisi it libxml2-devel libxslt-devel
+    (venv)ilker@pisi pisifarm $ pip install lxml 
+    
