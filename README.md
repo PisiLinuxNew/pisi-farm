@@ -1,21 +1,21 @@
 # pisi-farm
 Next generation pisi farm system
 
-- [Abstract] (#Abstract)
-- [Requirements] (#Requirements)
-- [Installation] (#Installation)
-    * [Virtualenv] (#Virtualenv)
-    * [Flask] (#Flask)
-    * [Database] (#Database)
+- [Abstract] (#abstract)
+- [Requirements] (#requirements)
+- [Installation] (#installation)
+    * [Virtualenv] (#virtualenv)
+    * [Flask] (#flask)
+    * [Database] (#database)
     * [lxml] (#lxml)
 
 * * *
 
 - [Özet] (#Özet)  
-- [Gereksinimler] (#Gereksinimler)
-- [Kurulum] (#Kurulum)
-    * [Virtualenv Sanal ortamı] (#Virtualenv-Sanal-ortamı)
-    * [Flask  Kurulumu] (#Flask-Kurulumu) 
+- [Gereksinimler] (#gereksinimler)
+- [Kurulum] (#kurulum)
+    * [Virtualenv Sanal ortamı] (#virtualenv-sanal-ortamı)
+    * [Flask Kurulumu] (#flask-kurulumu) 
   
 ## Abstract ##
 Current farm system that builds the packages for the PisiLinux distribution 
@@ -126,8 +126,7 @@ lxml python package requires libxml2-devel package:
     (venv)ilker@pisi pisifarm $ sudo pisi it libxml2-devel libxslt-devel
     (venv)ilker@pisi pisifarm $ pip install lxml 
     
-
-# Türkçe #
+* * *
 
 ## Özet ##
 Halihazırda kullanılan pisi paketlerini derleme sisteminin bazı eksiklikleri 
@@ -181,7 +180,7 @@ Burada promptun nasıl değiştiğine dikkat edin. Böylece sanal ortamın için
 anlayabilirsiniz. Bu aşamada, python, easy_install, pip gibi komutları kullandığınzda, 
 gerçek sisteme değil, venv dizini altına modüller kurulacaktır.
 
-### Flask  Kurulumu ###
+### Flask Kurulumu ###
 Sanal ortam içinde uygulamamız için gerekli olan diğer modülleri de yükleriz.
 
     (venv)ilker@pisi pisifarm $ pip install flask
