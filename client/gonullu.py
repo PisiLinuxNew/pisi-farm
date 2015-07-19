@@ -153,7 +153,7 @@ class Gonullu:
         os.system(tmptemizle)
 
 d = Docker()
-f = Farm("http://manap.se:5000")
+f = Farm("http://ciftlik.pisilinux.org/ciftlik")
 g = Gonullu(f,d)
 
 """

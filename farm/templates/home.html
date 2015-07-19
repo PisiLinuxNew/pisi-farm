@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="jumbo">
+    <h2>Pisi Dagitik Derleme Ciftligi<h2>
+    <h3>Detaylar buraya<h3>
+  </div>
+
+   {% for r in repo %}
+        <a href="/ciftlik/repo/{{ r.id }}">{{ r.repo }}:{{ r.branch }}</a>
+        docker image: {{ r.dockerimage }}  <br>
+        {% for s in  stat %}
+            {% if (r.repo == s.repository) and (r.branch == s.branch) %}
+                {% if s.durum == 0 %}
+                    Derlemeyi bekleyen : {{ s.sayi }} <br>
+                {% endif %}
+                {% if s.durum == 100 %}
+                    Su anda derlenen : {{ s.sayi }} <br>
+                {% endif %}
+                {% if s.durum == 101 %}
+                    Basarisiz : {{ s.sayi }} <br>
+                {% endif %}
+
+                {% if s.durum == 999 %}
+                    Basarili bitmis : {{ s.sayi }} <br>
+                {% endif %}
+
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endblock %}

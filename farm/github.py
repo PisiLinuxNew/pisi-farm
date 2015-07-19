@@ -47,6 +47,7 @@ class Commit:
         self.distinct = values['distinct']
         self.timestamp = values['timestamp']
         self.modified = values['modified']
+        self.added = values['added']
         self.url = values['url']
         self.message = values['message']
         self.removed = values['removed']
@@ -66,6 +67,19 @@ class Commit:
 
     def modifiedPkg(self):
         temp = []
+        for l in self.added:
+            filename = l.split("/")[-1].strip()
+            if filename in ("index.html","README.md"):
+                pass
+            elif l.find("/files/") > -1:
+                pass
+            else:
+                a = l.split("/")
+                if len(a) > 2 :
+                    pkgName = l.split("/")[-2]
+                    if pkgName not in temp:
+                        temp.append(pkgName)   
+
         for l in self.modified:
             filename = l.split("/")[-1].strip()
             if filename in ("index.html","README.md"):
@@ -74,10 +88,8 @@ class Commit:
                 pass
             else:
                 a = l.split("/")
-                print ">>>",self.id,  l
                 if len(a) > 2 :
                     pkgName = l.split("/")[-2]
-                    print temp
                     if pkgName not in temp:
                         temp.append(pkgName)
         return temp
@@ -128,8 +140,18 @@ class Push:
         commits += "</table>"
         return commits.encode("utf-8")
 
-import sys
+
+class PushStr(Push):
+    def __init__(self, content):
+        self.content = content
+        self.data = json.loads(self.content)
+        self.commits = {}
+        self.modified()
+        self.ref = self.data['ref'].split("/")[-1]
+        self.sender = Sender(self.data['sender'])
+
 if __name__ == "__main__":
+    import sys
     indir = sys.argv[1]
     outfile = sys.argv[2]
     os.chdir(indir)

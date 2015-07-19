@@ -23,7 +23,8 @@ body {
 }
  
 .menu li a {
-  color: #999;
+  color: #e3e3e3;
+
   text-decoration: none;
 }
 
@@ -33,7 +34,7 @@ body {
  */
   
 header {
-  background-color: #2B2B2B;
+  background-color: #ff0b0f;
   height: 35px;
   width: 100%;
   opacity: .9;
@@ -52,7 +53,19 @@ header h1.logo:hover {
   color: #fff;
   text-decoration: none;
 }
- 
+
+header h2.logo {
+  margin: 0;
+  font-size: 2.0em;
+  color: #fff;
+  text-transform: uppercase;
+  float: left;
+}
+
+header h2.logo:hover {
+  color: #fff;
+  text-decoration: none;
+}
 /*
  * Center the body content
  */

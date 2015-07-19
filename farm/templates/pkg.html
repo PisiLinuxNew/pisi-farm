@@ -3,14 +3,6 @@
 {% block content %}
   <h2>Paketler</h2>
   <p>Butun  paketler</p>
-{% if page > 1 %}
-<a href={{ page - 1 }}>{{ page - 1 }}</a>
-{% endif %}
-{% if page == 1 %}
-<a href="/packages/2">2</a>
-{% else %}
-<a href={{ page + 1 }}>{{ page + 1 }}</a>
-{% endif %}
   <table border=1>
     <tr><th>ID</th><th>paket adi</th><th>Aciklama</th><tr>
   {% for  p in pkgs %}
