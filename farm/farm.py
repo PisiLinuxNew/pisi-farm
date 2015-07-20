@@ -9,8 +9,6 @@ from sqlalchemy.sql import label
 import json
 from sqlalchemy.orm import class_mapper
 from repo import repos
-from werkzeug import secure_filename
-
 
 def serialize(model):
     """Transforms a model into a dictionary which can be dumped to JSON."""
@@ -32,11 +30,6 @@ class RepoForm(Form):
     repodir = StringField('repodir')
     enable = BooleanField('enable')
     submit = SubmitField('Kaydet')
-
-ALLOWED_EXTENSIONS = set(['pisi','log','err'])
-
-def allowed_file( filename ):
-    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 def repostat(repoid = -1):
@@ -146,6 +139,8 @@ def requestPkg(email):
     except:
         return "ilkermanap@gmail.com adresine mektup atarak gonullu olmak istediginizi belirtin"
     kuyruk = ses.query(Kuyruk).filter(Kuyruk.durum < 100).order_by(Kuyruk.id.asc()).first()
+    print ">>>> ", kuyruk
+    print kuyruk.id
     k = ses.query(Kuyruk)
     k = k.filter(Kuyruk.id == kuyruk.id)
     kayit = k.one()
@@ -157,6 +152,7 @@ def requestPkg(email):
     paketadi = ses.query(Paket).filter(Paket.id == kuyruk.paket_id).first().adi
     ses.commit()
     cevap = {'kuyruk_id': kuyruk.id, 'paket': paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch }
+    print ">>>>> ", cevap
     return jsonify(cevap)
 
 
@@ -171,6 +167,24 @@ def githubhook():
     f.write(request.data)
     f.close()
     gitcommit("github-%s.txt" % committarihi)
+
+
+@app.route("/updaterunning/", methods = ['GET'])
+def updaterunning():
+    kid = int(request.args.get('id'))
+    stat = int(request.args.get('state'))
+    if stat == 0:
+        basari = 999 # success
+    else:
+        basari = 101 # fail
+    
+    k = ses.query(Kuyruk)
+    k = k.filter(Kuyruk.id == kid)
+    kayit = k.first()
+    kayit.durum = basari
+    ses.flush()
+    ses.commit()
+    return "ok"
 
 
 
@@ -209,14 +223,16 @@ def upload():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             commit_id = filename.split("-")[0]
-            k = s.query(Kuyruk).filter(commit_id == commit_id).first()    
+            k = s.query(Kuyruk).filter(commit_id == commit_id).first()
             p = os.path.join(app.config['UPLOAD_FOLDER'], k.repository, k.branch)   
             os.system("mkdir -p %s" % p)
             f = os.path.join(p, filename)
             file.save(f)
             hash = os.popen("sha1sum %s" % f, "r").readlines()[0].split()[0].strip()
             return hash 
-            
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)

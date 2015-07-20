@@ -19,6 +19,3 @@ TEST="test"
 
 repos = ses.query(Repo).all()
 
-class Repo:
-    def __init__(self, reporec):
-        pass
