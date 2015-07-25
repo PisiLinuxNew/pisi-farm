@@ -1,4 +1,4 @@
-import urllib2
+mport urllib2
 import os
 import json
 import requests, sys, glob, time
@@ -49,22 +49,27 @@ class Farm:
         self.url = farm_url
         self.params = self.parametre()
 
+
     def get(self, cmd):
         return urllib2.urlopen("%s/%s" % (self.url, cmd)).read()
+
 
     def kuyruktanPaketAl(self, email):
         cmd = "requestPkg/%s" % email
         return json.loads(self.get(cmd))
 
+
     def parametre(self):
         bilgi = self.get("parameter")
         return json.loads(bilgi)
 
+
     def docker_adi(self, repo, branch):
-        for k,v in self.params.items():
-            if ((v['repo'] == repo ) and (v['branch'] == branch)):
-                return v['dockerimage']
+        for r in self.params:
+            if ((r['repo'] == repo ) and (r['branch'] == branch)):
+                return r['dockerimage']
         return None
+
 
     def dosya_gonder(self, fname, r, b):
         cmd = "upload"
@@ -76,6 +81,7 @@ class Farm:
         else:
             return False
 
+
     def dosyalari_gonder(self, liste, repo, branch):
         # FIXME:  derleme islemi sonucunda olusan log ve pisi
         # dosyalari burada gonderilecek
@@ -84,6 +90,7 @@ class Farm:
             if self.dosya_gonder(f, repo, branch) == True:
                 print f, " gonderildi"
         print liste
+
 
 class Gonullu:
     def __init__(self, farm, dock):
@@ -102,6 +109,7 @@ class Gonullu:
         self.derle()
         self.gonder()
 
+
     def paketAl(self):
         d = self.farm.kuyruktanPaketAl("ilkermanap@gmail.com")
         self.paket = d['paket']
@@ -114,11 +122,13 @@ class Gonullu:
         self.kuyruk_id = d['kuyruk_id']
         self.volumes['/root'] = '/tmp/%s' % ( self.paket)
 
+
     def volumes_str(self):
         temp = ""
         for ind, local in self.volumes.items():
             temp += " -v %s:%s " % (local, ind)
         return temp
+
 
     def calisma_kontrol(self):
         cmd = "ls /tmp/%s/%s.bitti" % (self.paket, self.paket)
@@ -127,9 +137,11 @@ class Gonullu:
             self.basari = int(open("/tmp/%s/%s.bitti" % (self.paket, self.paket), "r").readlines()[0])
         return (status, self.basari)
 
+
     def derle(self):
         self.paketAl()
-        cmd = "docker run -id --name %s-sil %s %s /derle/derle.sh %s %s" % ( self.paket,  self.volumes_str(), self.dockerImageName, self.paket, self.commit_id)
+        cmd = "docker run -id --name %s-sil %s %s /derle/derle.sh %s %s %s" % ( self.paket,  self.volumes_str(), self.dockerImageName, self.kuyruk_id, self.commit_id, self.paket)
+        print cmd
         status = os.system(cmd)
         calisiyor = True
         while calisiyor:
@@ -140,8 +152,9 @@ class Gonullu:
                 time.sleep(5)
                 cmd = "updaterunning?id=%s&state=%s" % (self.kuyruk_id, basari)
                 self.farm.get(cmd)
-                return 
+                return
             print "hala calisiyor"
+
 
     def gonder(self):
         liste = glob.glob("/tmp/%s/*.[lpe]*" % self.paket)
@@ -151,6 +164,7 @@ class Gonullu:
         os.system(temizle)
         tmptemizle = "rm -rf /tmp/%s" % self.paket
         os.system(tmptemizle)
+
 
 d = Docker()
 f = Farm("http://ciftlik.pisilinux.org/ciftlik")
