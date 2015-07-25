@@ -1,4 +1,4 @@
-mport urllib2
+import urllib2
 import os
 import json
 import requests, sys, glob, time
