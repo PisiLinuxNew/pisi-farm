@@ -13,7 +13,7 @@ REPOS = {'0':{'repo' : 'pisilinux/core',
 
 TEST="test"
 
-REPOBASE = "/var/www/ciftlik"
+REPOBASE = "/var/www/testrepo"
 
 
 class RepoView:

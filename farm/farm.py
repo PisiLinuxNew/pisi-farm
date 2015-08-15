@@ -8,7 +8,7 @@ from sqlalchemy import func
 from sqlalchemy.sql import label
 import json
 from sqlalchemy.orm import class_mapper
-from repo import repos
+from repo import repos, REPOBASE
 
 def serialize(model):
     """Transforms a model into a dictionary which can be dumped to JSON."""
@@ -16,6 +16,8 @@ def serialize(model):
     columns = [c.key for c in class_mapper(model.__class__).columns]
     # then we return their values in a dict
     return dict((c, getattr(model, c)) for c in columns)
+
+
 
 
 app = Flask(__name__)
@@ -66,8 +68,8 @@ def paketID(pname):
 @app.route('/packages')
 #@app.route('/packages/<int:page>')
 def packages():
-  pkglist = ses.query(Paket).all()
-  return render_template("pkg.html", pkgs = pkglist)
+    pkglist = ses.query(Paket).all()
+    return render_template("pkg.html", pkgs = pkglist)
 
 
 @app.route('/about')
@@ -222,9 +224,19 @@ def upload():
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            commit_id = filename.split("-")[0]
-            k = s.query(Kuyruk).filter(commit_id == commit_id).first()
-            p = os.path.join(app.config['UPLOAD_FOLDER'], k.repository, k.branch)   
+            kuyruk_id = filename.split("-")[0]
+            k = s.query(Kuyruk).filter(id == kuyruk_id).first()
+            pa = s.query(Paket).filter(paket_id == k.paket_id).first().adi
+            trh = datetime.strftime(datetime.now(),"%Y%m%d%H%M%S")
+            if pa[:3] == "lib":
+                # lib ile basliyorsa
+                pre = pa[:4]
+            else:
+                pre = pa[0]
+            pkgdir = "/%s/%s/%s-%s/" % (pre, pa, trh, k.commit_id)
+
+
+            p = os.path.join(REPOBASE, k.repository, k.branch, pkgdir)   
             os.system("mkdir -p %s" % p)
             f = os.path.join(p, filename)
             file.save(f)
