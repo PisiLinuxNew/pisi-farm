@@ -4,7 +4,7 @@ pisi ur
 cd /root
 pisi bi --ignore-safety -y $3 1>$1-$2-$3.log 2>$1-$2-$3.err
 STAT=$?
-for s in *.pisi
+for s in `ls *.pisi`
 do
   mv $s $1-$2-$s
 done

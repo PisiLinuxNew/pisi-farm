@@ -53,6 +53,8 @@ class DockerParams:
         """
         if yeni_cpu_orani < 0.1:
             yeni_cpu_orani = 0.1
+        if yeni_cpu_orani > 1:
+            yeni_cpu_orani = 1
         self.cpu_kota = yeni_cpu_orani
         self.cpu_quota = self.cpu_kota * self.cpu_period
 
@@ -70,7 +72,7 @@ class DockerParams:
         if self.docker_takas > -1:
             temp = " --memory-swap %dM " % self.docker_takas
         if self.docker_hafiza > -1:
-            temp += " -m %dM " % self.docker_takas
+            temp += " -m %dM " % self.docker_hafiza
         return temp
 
     def cpu_str(self):
@@ -82,10 +84,11 @@ class DockerParams:
         else:
             return "--name %s-sil" % self.name
 
-    def param_str(self, extra=""):
+    def param_str(self, extra="", image=""):
         if self.name == "":
             return None
-        return "%s %s %s %s %s " % (self.name_str(), self.cpu_str(), self.mem_str(), self.volumes_str(), extra)
+        return "%s %s %s %s %s %s " % (self.name_str(), self.cpu_str(), self.mem_str(),
+                                       self.volumes_str(), image, extra)
 
 
 class Docker:
@@ -94,11 +97,11 @@ class Docker:
         self.image = ""
         self.id = None
         self.params = DockerParams()
-        self.params.volume('/var/cache/pisi/packages': '/var/cache/pisi/packages')
-        self.params.volume('/var/cache/pisi/archives': '/var/cache/pisi/archives')
+        self.params.volume('/var/cache/pisi/packages', '/var/cache/pisi/packages')
+        self.params.volume('/var/cache/pisi/archives', '/var/cache/pisi/archives')
         # TODO: derle dizini uygulamanin kuruldugu yerde olmali.. boylece kullaniciya kopyalatmayiz.
         # TODO: ya da
-        self.params.volume('/derle': '/tmp/derle')
+        self.params.volume('/tmp/derle', '/derle')
 
     def set_image_name(self, newname):
         self.image = newname
@@ -111,7 +114,7 @@ class Docker:
                 os.system(cmd)
 
     def rm(self, imgname):
-        cmd = "docker rm %s"  % imgname
+        cmd = "docker rm %s" % imgname
         status = os.system(cmd)
         return status
 
@@ -120,8 +123,10 @@ class Docker:
         status = os.system(cmd)
         return status
 
-    def run(self, extra_params = ""):
-        prm = self.params.param_str(extra_params)
+    def run(self, extra_params=""):
+        prm = "docker run -id  %s " % (self.params.param_str(extra_params, self.image))
+        print prm
+        return prm
 
     def start(self):
         if self.check() != 0:
@@ -145,7 +150,10 @@ class Paketci:
         self.docker = dock
         self.basari = None
         self.docker_imaj_adi = docker_imaj_adi
+        self.paket = None
 
+    def set_paket(self, yeni_paket):
+        self.paket = yeni_paket
 
     def calisma_kontrol(self):
         cmd = "ls /tmp/%s/%s.bitti" % (self.paket, self.paket)
@@ -154,12 +162,31 @@ class Paketci:
             self.basari = int(open("/tmp/%s/%s.bitti" % (self.paket, self.paket), "r").readlines()[0])
         return status, self.basari
 
-    def derle_yerel(self):
-        # TODO: yerel paket tanimi gerek,
+
+class Gelistirici(Paketci):
+    def __init__(self, dock):
+        Paketci.__init__(self, dock)
+        self.pspec = ""
+
+    def set_pspec(self, pspec):
+        self.pspec = pspec
+
+    def farm_paket_al(self, email=EMAIL):
+        d = self.farm.kuyruktan_paket_al(email)
+        self.paket = d['paket']
+        self.docker.params.name = self.paket
+        self.repo = d['repo']
+        self.branch = d['branch']
+        self.docker_imaj_adi = self.farm.docker_adi(d['repo'], d['branch'])
+        self.docker.set_image_name(self.docker_imaj_adi)
+        self.commit_id = d['commit_id']
+        self.kuyruk_id = d['kuyruk_id']
+        self.docker.params.volume('/tmp/%s' % self.paket, "/root")
+
+    def derle(self):
         self.farm_paket_al()
-        cmd = "docker run -id --name %s-sil %s %s /derle/derle.sh %s %s %s" % \
-              (self.paket, self.volumes_str(), self.dockerImageName, self.kuyruk_id, self.commit_id, self.paket)
-        print cmd
+        extra = "/derle/derle.sh %s %s %s" % (self.kuyruk_id, self.commit_id, self.paket)
+        cmd = self.docker.run(extra)
         status = os.system(cmd)
         calisiyor = True
         while calisiyor:
@@ -173,15 +200,6 @@ class Paketci:
                 return
             print "hala calisiyor"
 
-class Gelistirici(Paketci):
-    def __init__(self, dock):
-        Paketci.__init__(self, dock)
-        self.pspec = ""
-
-    def set_pspec(self, pspec):
-        self.pspec = pspec
-
-    
 
 class Gonullu(Paketci):
     def __init__(self, farm, dock):
@@ -194,7 +212,7 @@ class Gonullu(Paketci):
         self.derle()
         self.gonder()
 
-    def farm_paket_al(self, email = EMAIL):
+    def farm_paket_al(self, email=EMAIL):
         d = self.farm.kuyruktan_paket_al(email)
         self.paket = d['paket']
         self.docker.params.name = self.paket
@@ -210,16 +228,15 @@ class Gonullu(Paketci):
         liste = glob.glob("/tmp/%s/*.[lpe]*" % self.paket)
         print liste
         self.farm.dosyalari_gonder(liste, self.repo, self.branch)
-        if  not self.docker.rm("%s-sil" % self.paket):
+        if not self.docker.rm("%s-sil" % self.paket):
             print "imaj silinemedi ", self.paket
         tmptemizle = "rm -rf /tmp/%s" % self.paket
         os.system(tmptemizle)
 
     def derle(self):
         self.farm_paket_al()
-        cmd = "docker run -id --name %s-sil %s %s /derle/derle.sh %s %s %s" % \
-              (self.paket, self.volumes_str(), self.dockerImageName, self.kuyruk_id, self.commit_id, self.paket)
-        print cmd
+        extra = "/derle/derle.sh %s %s %s" % (self.kuyruk_id, self.commit_id, self.paket)
+        cmd = self.docker.run(extra)
         status = os.system(cmd)
         calisiyor = True
         while calisiyor:
@@ -232,6 +249,7 @@ class Gonullu(Paketci):
                 self.farm.get(cmd)
                 return
             print "hala calisiyor"
+
 
 class Farm:
     def __init__(self, farm_url):
