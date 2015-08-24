@@ -7,17 +7,17 @@
 
    {% for r in repo %}
         <a href="/ciftlik/repo/{{ r.id }}">{{ r.repo }}:{{ r.branch }}</a>
-        docker image: {{ r.dockerimage }}  <br>
+        docker image: {{ r.dockerimage }}  
         {% for s in  stat %}
             {% if (r.repo == s.repository) and (r.branch == s.branch) %}
                 {% if s.durum == 0 %}
-                    Derlemeyi bekleyen : {{ s.sayi }} <br>
+                    Derlemeyi bekleyen : {{ s.sayi }}
                 {% endif %}
                 {% if s.durum == 100 %}
-                    Su anda derlenen : {{ s.sayi }} <br>
+                    Su anda derlenen : {{ s.sayi }} 
                 {% endif %}
                 {% if s.durum == 101 %}
-                    Basarisiz : {{ s.sayi }} <br>
+                    Basarisiz : {{ s.sayi }} 
                 {% endif %}
 
                 {% if s.durum == 999 %}
@@ -30,12 +30,9 @@
 
 <hr>
 
-
+<div>
   <h2>{{ pkg.Source.Name }} paketi detayi</h2>
-
-<p>
 <h3> Source </h3>
-<hr>
 <table>
   <tr>  
     <th> Name</th>
@@ -124,15 +121,14 @@
   {% endif %}
 </table>
 
-</p>
+
 
 
 {% for p in pkg.iterchildren() %}
 
   {% if p.tag == "Package" %}  
-  <p>
+
   <h3> Package {{ p.Name }}</h3>
-  <hr>
   <table>
      <tr> <th> Name</th> <td> {{ p.Name }}</td></tr>
        {% if p.find("BuildDependencies") %} 
@@ -195,9 +191,9 @@
   {% endif %}
 
   {% if p.tag == "History" %}
-  <p>
+
     <h3> History </h3>
-    <hr>
+
     <table>
       <tr><th>Release</th><th>Date</th><th>Version</th><th>Comment</th><th>Packager</th></tr>
       {% for  u in p.iterchildren() %}
@@ -213,7 +209,9 @@
 
    {% endif %}
 {% endfor %}
-
-
+</td>
+</tr>
+</table>
+</div>
 {% endblock %}
 

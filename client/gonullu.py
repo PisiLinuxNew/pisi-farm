@@ -8,7 +8,6 @@ import requests
 
 EMAIL = "ilkermanap@gmail.com"
 
-
 def hafiza():
     """
     [en] return physical and swap memory in megabytes
@@ -36,7 +35,7 @@ class DockerParams:
         self.sistem_hafiza, self.sistem_takas = hafiza()
         self.docker_hafiza = self.sistem_hafiza / 2
         self.docker_takas = -1
-        self.cpu_kota = 0.5
+        self.cpu_kota = 1
         self.cpu_period = 100000
         self.cpu_quota = self.cpu_kota * self.cpu_period
         self.volumes = {}
@@ -275,9 +274,21 @@ class Farm:
 
     def dosya_gonder(self, fname, r, b):
         cmd = "upload"
-        f = {'file': open(fname, 'rb')}
+        ek = ""
+        if fname.split(".")[-1] in ("err","log"):
+            icerik = open(fname,"r").read()
+            htm = open("%s.html" % fname, "w")
+            htm.write("<html><body><pre>")
+            htm.write(icerik)
+            htm.write("</pre></body></html>")
+            htm.close()
+            ek = ".html"
+        f = {'file': open("%s%s" % (fname, ek) , 'rb')}
         r = requests.post("%s/%s" % (self.url, cmd), files=f)
-        hashx = os.popen("sha1sum %s" % fname, "r").readlines()[0].split()[0].strip()
+        hashx = os.popen("sha1sum %s%s" % (fname, ek), "r").readlines()[0].split()[0].strip()
+        print ">> uzak hash   : %s"  % r.text.strip()
+        print ">> yakin hash  : %s"  % hashx
+
         if hashx == r.text.strip():
             return True
         else:
@@ -288,12 +299,24 @@ class Farm:
             print "dosya gonderiliyor, ", f
             if self.dosya_gonder(f, repo, branch):
                 print f, " gonderildi"
+            else:
+                while not(self.dosya_gonder(f, repo, branch)):
+                    print f, " deniyoruz"
+                    time.sleep(5)
+
+
         print liste
 
 
 d = Docker()
 f = Farm("http://ciftlik.pisilinux.org/ciftlik")
-g = Gonullu(f, d)
+#f = Farm("http://ciftlik.pisilinux.org:5000")
+while 1:
+    g = Gonullu(f, d)
+    for i in range(10):
+        print "Kalan %d sn. Durdurmak icin simdi ctrl-c ile kesebilirsiniz.." % (10 -i) * 3
+        time.sleep(3)
+    
 
 """
 docker run -itd 

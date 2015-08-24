@@ -2,7 +2,6 @@
 
 {% block content %}
   <h2>Kuyruk</h2>
-  <p>Derlenmeyi bekleyen paketler</p>
 <table border=1>
 <tr>
    <th>Tarih</th>
@@ -31,12 +30,12 @@
    Calisiyor
     {% endif %}
     {% if p.durum  == 101 %}
-    <a href= /compiledetail/{{ p.id }}> 
+    <a target=new href= /ciftlik/compiledetail/{{ p.id }}> 
    Basarisiz
     </a>
     {% endif %}
     {% if p.durum  == 999 %}
-    <a href= /compiledetail/{{ p.id }}> 
+    <a target=new href= /ciftlik/compiledetail/{{ p.id }}> 
    Basarili 
     </a>
     {% endif %}

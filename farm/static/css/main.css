@@ -38,7 +38,7 @@ header {
   height: 35px;
   width: 100%;
   opacity: .9;
-  margin-bottom: 10px;
+  margin-bottom: 3px;
 }
  
 header h1.logo {
@@ -71,12 +71,13 @@ header h2.logo:hover {
  */
   
 .container {
-  width: 940px;
-  margin: 0 auto;
+/*  width: 940px; */
+  margin: 5px auto;
+  margin-left: 10px auto;
 }
  
 div.jumbo {
-  padding: 10px 0 30px 0;
+  padding: 5px 0 10px 0;
   background-color: #eeeeee;
   -webkit-border-radius: 6px;
      -moz-border-radius: 6px;
@@ -85,47 +86,51 @@ div.jumbo {
  
 h2 {
   font-size: 3em;
-  margin-top: 40px;
+  margin-top: 5px;
   text-align: center;
   letter-spacing: -2px;
 }
  
 h3 {
-  font-size: 1.7em;
+  font-size: 1.4em;
   font-weight: 100;
-  margin-top: 30px;
-  text-align: center;
+  margin-top: 2px;
+  text-align: left;
   letter-spacing: -1px;
-  color: #999;
+  color: #909;
 }
 table {
-            font-size:15px;
+            font-size:11px;
             color:#333333;
-            width:auto;
+	    margin-top: -5px;
+            width:800px;
             border-width: 2px;
             border-color: #729ea5;
             border-collapse: collapse;
-            -moz-box-shadow: 0 0 40px 1px #000000;
-            -webkit-box-shadow: 0 0 40px 1px #000000;
-            box-shadow: 0 0 40px 1px #000000;}
+            -moz-box-shadow: 0 0 3px 1px #000000;
+            -webkit-box-shadow: 0 0 3px 1px #000000;
+            box-shadow: 0 0 3px 1px #000000;}
         table th {
             font-family: serif;
-            font-size:15px;
+            font-size:11px;
             background-color:#acc8cc;
             border-width: 1px;
-            padding: 8px;
+            padding: 2px;
             border-style: solid;
             border-color: #729ea5;
             text-align:left;
         }
-        table tr {background-color:#d4e3e5;}
+        table tr {background-color:#d4e3e5;} 
         table td {
             font-family:monospace;
-            font-size:13px;
+            font-size:11px;
             border-width: 1px;
-            font-weight: bold;
+            font-weight: 100;
             color: #555; 
-            padding: 8px;
+            padding: 2px;
             border-style: solid;
             border-color: #729ea5;}
         table tr:hover {background-color: #D8B9E0;}
+
+}
+

@@ -9,6 +9,15 @@ from sqlalchemy.sql import label
 import json
 from sqlalchemy.orm import class_mapper
 from repo import repos, REPOBASE
+from werkzeug import secure_filename
+
+
+
+ALLOWED_EXTENSIONS = set(['pisi','log','err', "html"])
+
+def allowed_file( filename ):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 def serialize(model):
     """Transforms a model into a dictionary which can be dumped to JSON."""
@@ -19,10 +28,9 @@ def serialize(model):
 
 
 
-
 app = Flask(__name__)
 app.config.from_object('config')
-
+app.config["PROPAGATE_EXCEPTIONS"]  = True
 
 class RepoForm(Form):
     repo = StringField('repo')
@@ -88,10 +96,29 @@ def compiling():
 
 
 @app.route('/queue')
-def queue():
-    vals = ses.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.tarih.asc()).all()
-    return render_template('queue.html', packages = vals)
-
+@app.route('/queue/<string:qtype>')
+def queue(qtype = "all"):
+    if qtype == "all":
+        vals = ses.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.tarih.asc()).all()
+        return render_template('queue.html', packages = vals)
+    else:
+        qs = qtype.split(",")
+        durumlar = []
+        for durum in qs:
+            durum = durum.strip().lower()
+            if durum == "waiting":
+                durumlar.append(0)
+            if durum == "partial":
+                durumlar.append(1)
+            if durum == "running":
+                durumlar.append(100)
+            if durum == "failed":
+                durumlar.append(101)
+            if durum == "success":
+                durumlar.append(999)
+            print durumlar
+        vals = ses.query(Kuyruk).filter(Kuyruk.durum.in_(durumlar)).join(Paket).order_by(Kuyruk.tarih.asc()).all()
+        return render_template('queue.html', packages = vals)
 
 @app.route('/')
 @app.route('/repo/<int:id>')
@@ -141,7 +168,7 @@ def requestPkg(email):
     except:
         return "ilkermanap@gmail.com adresine mektup atarak gonullu olmak istediginizi belirtin"
     kuyruk = ses.query(Kuyruk).filter(Kuyruk.durum < 100).order_by(Kuyruk.id.asc()).first()
-    print ">>>> ", kuyruk
+    print ">>>> ", kuyruk, " <<<<<<<"
     print kuyruk.id
     k = ses.query(Kuyruk)
     k = k.filter(Kuyruk.id == kuyruk.id)
@@ -224,27 +251,35 @@ def upload():
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            kuyruk_id = filename.split("-")[0]
-            k = s.query(Kuyruk).filter(id == kuyruk_id).first()
-            pa = s.query(Paket).filter(paket_id == k.paket_id).first().adi
-            trh = datetime.strftime(datetime.now(),"%Y%m%d%H%M%S")
+            filename_kalan = filename[filename.find("-")+1:]
+            gercek_isim = filename_kalan[filename_kalan.find("-")+1:]
+            kuyruk_id = int(filename.split("-")[0])
+            k = ses.query(Kuyruk).filter(Kuyruk.id == kuyruk_id).first()
+            pa = ses.query(Paket).filter(Paket.id == k.paket_id).first().adi
+            trh = datetime.strftime(datetime.now(),"%Y%m%d")
             if pa[:3] == "lib":
                 # lib ile basliyorsa
                 pre = pa[:4]
             else:
                 pre = pa[0]
-            pkgdir = "/%s/%s/%s-%s/" % (pre, pa, trh, k.commit_id)
-
-
-            p = os.path.join(REPOBASE, k.repository, k.branch, pkgdir)   
+            pkgdir = "%s/%s/%s-%s/" % (pre, pa, kuyruk_id ,k.commit_id)
+            p = "%s/%s/%s/%s" % (REPOBASE, k.repository, k.branch, pkgdir)   
             os.system("mkdir -p %s" % p)
-            f = os.path.join(p, filename)
+            f = os.path.join(p, gercek_isim)
             file.save(f)
             hash = os.popen("sha1sum %s" % f, "r").readlines()[0].split()[0].strip()
             return hash 
 
 
-
+@app.route("/compiledetail/<int:id>")
+def compiledetail(id):
+    k = ses.query(Kuyruk).filter(Kuyruk.id == id).first()
+    paket = ses.query(Paket).filter(Paket.id == k.paket_id).first().adi
+    if paket[:3] == "lib":
+        ilk = paket[:4]
+    else:
+        ilk = paket[0]
+    return render_template("compiledetail.html", paket=paket, kuyruk = k, ilk=ilk)
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)

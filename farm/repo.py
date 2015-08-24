@@ -51,7 +51,6 @@ class RepoView:
         self.paketler = {}
         for p in self.yapi.iterchildren():
             if (p.tag == "SpecFile"):
-                print p.Source.Name
                 self.paketler[p.Source.Name] = p
         
 
