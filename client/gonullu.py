@@ -10,8 +10,7 @@ EMAIL = "ilkermanap@gmail.com"
 
 
 def hazirlik():
-    derlesh = """
-#!/bin/bash
+    derlesh = """#!/bin/bash
 service dbus start
 pisi ur
 cd /root
@@ -24,8 +23,7 @@ done
 echo $STAT >  $3.bitti
 """
 
-    gelistirsh = """
-#!/bin/bash
+    gelistirsh = """#!/bin/bash
 # birinci paket adi,
 # ikinci pspec adresi
 service dbus start
