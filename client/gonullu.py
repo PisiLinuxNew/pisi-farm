@@ -8,6 +8,43 @@ import requests
 
 EMAIL = "ilkermanap@gmail.com"
 
+
+def hazirlik():
+    derlesh = """
+#!/bin/bash
+service dbus start
+pisi ur
+cd /root
+pisi bi --ignore-safety -y $3 1>$1-$2-$3.log 2>$1-$2-$3.err
+STAT=$?
+for s in `ls *.pisi`
+do
+  mv $s $1-$2-$s
+done
+echo $STAT >  $3.bitti
+"""
+
+    gelistirsh = """
+#!/bin/bash
+# birinci paket adi,
+# ikinci pspec adresi
+service dbus start
+pisi ur
+cd /root
+pisi bi --ignore-safety -y $2 1>$1.log 2>$1.err
+STAT=$?
+echo $STAT >  $1.bitti
+"""
+    os.system("mkdir -p /tmp/derle")
+    f = open("/tmp/derle/derle.sh","w")
+    f.write(derlesh)
+    f.close()
+    f = open("/tmp/derle/gelistirici.sh","w")
+    f.write(gelistirsh)
+    f.close()
+    os.system("chmod 755 /tmp/derle/*.sh")
+
+
 def hafiza():
     """
     [en] return physical and swap memory in megabytes
@@ -307,14 +344,14 @@ class Farm:
 
         print liste
 
-
+hazirlik()
 d = Docker()
 f = Farm("http://ciftlik.pisilinux.org/ciftlik")
 #f = Farm("http://ciftlik.pisilinux.org:5000")
 while 1:
     g = Gonullu(f, d)
     for i in range(10):
-        print "Kalan %d sn. Durdurmak icin simdi ctrl-c ile kesebilirsiniz.." % (10 -i) * 3
+        print "Kalan %d sn. Durdurmak icin simdi ctrl-c ile kesebilirsiniz.." % ((10 - i) * 3)
         time.sleep(3)
     
 
