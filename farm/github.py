@@ -78,8 +78,8 @@ class Commit:
                 if len(a) > 2 :
                     pkgName = l.split("/")[-2]
                     if pkgName not in temp:
-                        temp.append(pkgName)   
-
+                        temp.append(pkgName)  
+ 
         for l in self.modified:
             filename = l.split("/")[-1].strip()
             if filename in ("index.html","README.md"):
@@ -92,7 +92,9 @@ class Commit:
                     pkgName = l.split("/")[-2]
                     if pkgName not in temp:
                         temp.append(pkgName)
+        print " eklenecekler :", temp
         return temp
+
 
     def report(self):
         print self.id

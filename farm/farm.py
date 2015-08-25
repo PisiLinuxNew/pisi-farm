@@ -68,7 +68,10 @@ def commitCheck(pkgid, commitid):
 
 
 def paketID(pname):
-    id = ses.query(Paket).filter_by(adi=pname).first().id
+    try:
+        id = ses.query(Paket).filter_by(adi=pname).first().id
+    except:
+        id = None
     return id
 
 
@@ -216,7 +219,6 @@ def updaterunning():
     return "ok"
 
 
-
 @app.route('/gitcommit/<string:fname>')
 def gitcommit(fname):
     f = "/tmp/%s" % fname
@@ -233,6 +235,11 @@ def gitcommit(fname):
             url = com['url']
             for pkg in com['modified']:
                 pkgid = paketID(pkg)
+                if pkgid == None:
+                    ppp = Paket(adi=pkg, aciklama="%s icin aciklama eklenmeli" % pkg)
+                    ses.add(ppp)
+                    ses.commit()
+                    pkgid = paketID(pkg)
                 if commitCheck(pkgid, id) == 0:
                     print id
                     k = Kuyruk(tarih=t, paket_id=pkgid, commit_id=id, \
