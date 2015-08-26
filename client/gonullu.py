@@ -131,8 +131,8 @@ class Docker:
         self.image = ""
         self.id = None
         self.params = DockerParams()
-        self.params.volume('/var/cache/pisi/packages', '/var/cache/pisi/packages')
-        self.params.volume('/var/cache/pisi/archives', '/var/cache/pisi/archives')
+        #self.params.volume('/var/cache/pisi/packages', '/var/cache/pisi/packages')
+        #self.params.volume('/var/cache/pisi/archives', '/var/cache/pisi/archives')
         # TODO: derle dizini uygulamanin kuruldugu yerde olmali.. boylece kullaniciya kopyalatmayiz.
         # TODO: ya da
         self.params.volume('/tmp/derle', '/derle')
@@ -165,10 +165,10 @@ class Docker:
     def start(self):
         if self.check() != 0:
             print "Starting docker"
-            cmd1 = "sudo cgroupfs-mount"
+            #cmd1 = "sudo cgroupfs-mount"
             cmd2 = "docker -d &"
-            print "Mounting cgroupfs"
-            stat1 = os.system(cmd1)
+            #print "Mounting cgroupfs"
+            #stat1 = os.system(cmd1)
             print "Starting docker daemon"
             stat2 = os.system(cmd2)
             if stat2 == 0:
@@ -178,6 +178,13 @@ class Docker:
             return True
         return False
 
+
+class DockerGonullu(Docker):
+    def __init__(self):
+        Docker.__init__(self)
+        self.params.volume('/var/cache/pisi/packages', '/var/cache/pisi/packages')
+        self.params.volume('/var/cache/pisi/archives', '/var/cache/pisi/archives')
+        self.params.volume('/tmp/derle', '/derle')
 
 class Paketci:
     def __init__(self, dock, docker_imaj_adi=None):
@@ -262,7 +269,7 @@ class Gonullu(Paketci):
         liste = glob.glob("/tmp/%s/*.[lpe]*" % self.paket)
         print liste
         self.farm.dosyalari_gonder(liste, self.repo, self.branch)
-        if not self.docker.rm("%s-sil" % self.paket):
+        if self.docker.rm("%s-sil" % self.paket) != 0:
             print "imaj silinemedi ", self.paket
         tmptemizle = "rm -rf /tmp/%s" % self.paket
         os.system(tmptemizle)
@@ -342,16 +349,17 @@ class Farm:
 
         print liste
 
-hazirlik()
-d = Docker()
-f = Farm("http://ciftlik.pisilinux.org/ciftlik")
-#f = Farm("http://ciftlik.pisilinux.org:5000")
-while 1:
-    g = Gonullu(f, d)
-    for i in range(10):
-        print "Kalan %d sn. Durdurmak icin simdi ctrl-c ile kesebilirsiniz.." % ((10 - i) * 3)
-        time.sleep(3)
-    
+
+if __name__ == "__main__":
+    hazirlik()
+    d = DockerGonullu()
+    f = Farm("http://ciftlik.pisilinux.org/ciftlik")
+    #f = Farm("http://ciftlik.pisilinux.org:5000")
+    while 1:
+        g = Gonullu(f, d)
+        for i in range(10):
+            print "Kalan %d sn. Durdurmak icin simdi ctrl-c ile kesebilirsiniz.." % ((10 - i) * 3)
+            time.sleep(3)
 
 """
 docker run -itd 
