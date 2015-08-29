@@ -65,7 +65,7 @@ class RepoView:
                             elif dep not in self.build_dep[pname]:
                                 self.build_dep[pname].append(dep)
         for k,v in self.build_dep.items():
-            print k, v
+            print k, ":", v
 
     def pkgDesc(self, pkg):
         temp = {}
