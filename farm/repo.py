@@ -29,6 +29,8 @@ class RepoView:
         self.yapi = ""
         self.repoacik = ("%s/%s" % (self.repodir, self.repofile)).replace(".xz","")
         self.paketler = {}
+        self.build_dep = {}
+        self.run_dep = {}
         if init == True:
             self.init()
         else:
@@ -52,8 +54,18 @@ class RepoView:
         for p in self.yapi.iterchildren():
             if (p.tag == "SpecFile"):
                 self.paketler[p.Source.Name] = p
-        
 
+        for pname, pkg  in self.paketler.items():
+            for t in pkg.iterchildren():
+                if t.tag == "BuildDependencies":
+                    for dep in t.iterchildren():
+                        if dep.tag == "Dependency":
+                            if pname not in self.build_dep:
+                                self.build_dep[pname] = [dep]
+                            elif dep not in self.build_dep[pname]:
+                                self.build_dep[pname].append(dep)
+        for k,v in self.build_dep.items():
+            print k, v
 
     def pkgDesc(self, pkg):
         temp = {}
