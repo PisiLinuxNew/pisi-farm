@@ -11,7 +11,8 @@ EMAIL = "ilkermanap@gmail.com"
 
 def hazirlik():
     derlesh = """#!/bin/bash
-service dbus start
+service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel && service dbus stop
+pisi ar core https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz && pisi ar main https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz --at 2 
 pisi ur
 cd /root
 pisi bi --ignore-safety -y $3 1>$1-$2-$3.log 2>$1-$2-$3.err
@@ -26,7 +27,8 @@ echo $STAT >  $3.bitti
     gelistirsh = """#!/bin/bash
 # birinci paket adi,
 # ikinci pspec adresi
-service dbus start
+service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel && service dbus stop
+pisi ar core https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz && pisi ar main https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz --at 2
 pisi ur
 cd /root
 pisi bi --ignore-safety -y $2 1>$1.log 2>$1.err

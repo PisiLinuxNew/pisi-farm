@@ -119,11 +119,14 @@ class Push:
 
     def db(self):
         temp = {}
-        last = sorted(self.commits.keys())[-1]
-        d = self.commits[last].db()
-        if d != None:
-            temp[d["id"]] = d
-        return temp
+        if len(self.commits.keys()) > 0:
+            last = sorted(self.commits.keys())[-1]
+            d = self.commits[last].db()
+            if d != None:
+                temp[d["id"]] = d
+            return temp
+        else:
+            return None
 
     def modified(self):
         if 'commits' in self.data.keys():

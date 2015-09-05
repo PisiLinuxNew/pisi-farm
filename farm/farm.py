@@ -82,6 +82,14 @@ def packages():
     pkglist = ses.query(Paket).all()
     return render_template("pkg.html", pkgs = pkglist)
 
+@app.route('/binpackage/<string:name>')
+def binpackage(name):
+    for k,v in repos.items():
+        if name in v.paketler:
+            return  "%s True" % name
+        else:
+            return  "%s False" % name
+
 
 @app.route('/about')
 def about():
@@ -101,9 +109,18 @@ def compiling():
 @app.route('/queue')
 @app.route('/queue/<string:qtype>')
 def queue(qtype = "all"):
+    def depfind(packages):
+        deplist = {}
+        for p in packages:
+            for repoid, repo  in  repos.items():
+                if p.paket.adi in repo.paketler.keys():
+                    deplist[p.paket.adi] = repo.depcheck(p.paket.adi)
+        return deplist
+
     if qtype == "all":
         vals = ses.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.tarih.asc()).all()
-        return render_template('queue.html', packages = vals)
+        deps = depfind(vals)
+        return render_template('queue.html', packages = vals, build_deps = deps)
     else:
         qs = qtype.split(",")
         durumlar = []
@@ -121,7 +138,8 @@ def queue(qtype = "all"):
                 durumlar.append(999)
             print durumlar
         vals = ses.query(Kuyruk).filter(Kuyruk.durum.in_(durumlar)).join(Paket).order_by(Kuyruk.tarih.asc()).all()
-        return render_template('queue.html', packages = vals)
+        deps = depfind(vals)
+        return render_template('queue.html', packages = vals, build_deps = deps)
 
 @app.route('/')
 @app.route('/repo/<int:id>')
