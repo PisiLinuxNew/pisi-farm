@@ -130,6 +130,8 @@ def queue(qtype = "all"):
                 durumlar.append(0)
             if durum == "partial":
                 durumlar.append(1)
+            if durum == "waitingdep":
+                durumlar.append(2)
             if durum == "running":
                 durumlar.append(100)
             if durum == "failed":
@@ -188,9 +190,7 @@ def requestPkg(email):
         gonullu_id = ses.query(Gonullu).filter(Gonullu.email == email).one().id
     except:
         return "ilkermanap@gmail.com adresine mektup atarak gonullu olmak istediginizi belirtin"
-    kuyruk = ses.query(Kuyruk).filter(Kuyruk.durum < 100).order_by(Kuyruk.id.asc()).first()
-    print ">>>> ", kuyruk, " <<<<<<<"
-    print kuyruk.id
+    kuyruk = ses.query(Kuyruk).filter(Kuyruk.durum == 0 ).order_by(Kuyruk.id.asc()).first()
     k = ses.query(Kuyruk)
     k = k.filter(Kuyruk.id == kuyruk.id)
     kayit = k.one()
@@ -201,7 +201,10 @@ def requestPkg(email):
     ses.flush()
     paketadi = ses.query(Paket).filter(Paket.id == kuyruk.paket_id).first().adi
     ses.commit()
-    cevap = {'kuyruk_id': kuyruk.id, 'paket': paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch }
+    krn = False
+    if paketadi in app.config["blacklist"]:
+        krn = True
+    cevap = {'kuyruk_id': kuyruk.id, 'paket': paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_gerekli': krn}
     print ">>>>> ", cevap
     return jsonify(cevap)
 
@@ -260,9 +263,17 @@ def gitcommit(fname):
                     ses.commit()
                     pkgid = paketID(pkg)
                 if commitCheck(pkgid, id) == 0:
-                    print id
+                    for repoid, repo  in  repos.items():
+                        if p.paket.adi in repo.paketler.keys():
+                            deplist = repo.depcheck(p.paket.adi)
+                    drm = 0
+                    state = True
+                    for dep in deplist:
+                        state = state and dep
+                    if state == False:
+                        drm = 2
                     k = Kuyruk(tarih=t, paket_id=pkgid, commit_id=id, \
-                                      commit_url=url, durum=0, repository=rep, \
+                                      commit_url=url, durum=drm, repository=rep, \
                                       branch=bra)
                     ses.add(k)
                     ses.commit()

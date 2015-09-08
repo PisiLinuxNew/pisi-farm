@@ -48,6 +48,7 @@ class Kuyruk(Base):
     branch = Column(String(100))
     # 0 waiting
     # 1 waiting partial
+    # 2 waiting missing dep
     # 100 in progress
     # if durum < 100 then it can be served to volunteers
     # compile can be suspended on one volunteer and resumed

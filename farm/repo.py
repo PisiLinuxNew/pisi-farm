@@ -87,8 +87,6 @@ class RepoBinary(RepoBase):
                                 maxhist = hst
                                 vers = hist.Version
                 self.versiyonlar[p.Name] = vers
-                print p.Name, maxhist, vers
-
 
 class RepoView(RepoBase):
     def __init__(self, r, init = False, binrepo = None):
@@ -145,9 +143,6 @@ class RepoView(RepoBase):
                     pkt = paket
                 if pkt in self.binary_repo.paketler.keys():
                     if vers != None:
-                        print "!!!!! ",self.binary_repo.versiyonlar[pkt], vers                     
-                        print "!!!!! ",type(self.binary_repo.versiyonlar[pkt]), type(vers)
-
                         vc = vercheck(str(self.binary_repo.versiyonlar[pkt]), vers)
                         if state == "eq":
                             if vc == 0:
@@ -196,8 +191,6 @@ class RepoView(RepoBase):
                                 # Paketcileri uyar
                                 if ((d == "versionFrom") or (d == "releaseFrom")):
                                     state = "geq"
-                                print "attrib.keys :", dep.attrib.keys()
-                                
                                 dep = dep + "," + dep.attrib.values()[0]
                             temp.append((dep, state))
             return temp

@@ -9,9 +9,12 @@ import requests
 EMAIL = "ilkermanap@gmail.com"
 
 
-def hazirlik():
+def hazirlik(kernel_gerekli):
+    krn = " "
+    if kernel_gerekli == True:
+        krn = " kernel "
     derlesh = """#!/bin/bash
-service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel
+service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel %s
 pisi ar core https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz && pisi ar main https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz --at 2
 pisi ur
 cd /root
@@ -22,19 +25,19 @@ do
   mv $s $1-$2-$s
 done
 echo $STAT >  $3.bitti
-"""
+""" % krn
 
     gelistirsh = """#!/bin/bash
 # birinci paket adi,
 # ikinci pspec adresi
-service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel
+service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel %s
 pisi ar core https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz && pisi ar main https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz --at 2
 pisi ur
 cd /root
 pisi bi --ignore-safety -y $2 1>$1.log 2>$1.err
 STAT=$?
 echo $STAT >  $1.bitti
-"""
+""" % krn
     os.system("mkdir -p /tmp/derle")
     f = open("/tmp/derle/derle.sh","w")
     f.write(derlesh)
@@ -194,6 +197,7 @@ class Paketci:
         self.basari = None
         self.docker_imaj_adi = docker_imaj_adi
         self.paket = None
+        self.kernel_gerekli = None
 
     def set_paket(self, yeni_paket):
         self.paket = yeni_paket
@@ -224,6 +228,7 @@ class Gelistirici(Paketci):
         self.docker.set_image_name(self.docker_imaj_adi)
         self.commit_id = d['commit_id']
         self.kuyruk_id = d['kuyruk_id']
+        self.kernel_gerekli = d['kernel_gerekli']
         self.docker.params.volume('/tmp/%s' % self.paket, "/root")
 
     def derle(self):
@@ -264,6 +269,7 @@ class Gonullu(Paketci):
         self.docker_imaj_adi = self.farm.docker_adi(d['repo'], d['branch'])
         self.docker.set_image_name(self.docker_imaj_adi)
         self.commit_id = d['commit_id']
+        self.kernel_gerekli = d['kernel_gerekli']
         self.kuyruk_id = d['kuyruk_id']
         self.docker.params.volume('/tmp/%s' % self.paket, "/root")
 
