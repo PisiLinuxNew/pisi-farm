@@ -16,7 +16,7 @@ TEST="test"
 REPOBASE = "/var/www/testrepo"
 
 class RepoBase:
-    def __init__(self, repo = "reponame", repourl = None, init = False):
+    def __init__(self, repo =  "reponame", repourl = None, init = False):
         self.repourl = repourl
         self.repo = repo
         self.repodir = REPOBASE +"/" +  self.repo
@@ -111,22 +111,58 @@ class RepoView(RepoBase):
         print self.id, self.repo, self.branch, self.dockerimage, self.repodir, self.repourl, self.enable
 
     def depcheck(self, pname):
+        def vercheck(v1, v2):
+            """
+            1.2.42.a  gibi gelmis olan iki farkli versiyonu kontrol eder..
+            v1 > v2  ise 1
+            v1 = v2 ise 0
+            v1 < v2 ise -1 
+            """
+            if v1 == v2:
+                return 0
+            else:
+                v1p = v1.split(".")
+                v2p = v2.split(".")
+                n1 = len(v1p)
+                if n1 < len(v2p):
+                    n1 = len(v2p)
+                
+                for i in range(n1):
+                    if int(v1p[i]) > int(v2p[i]):
+                        return 1
+                    elif int(v1p[i]) < int(v2p[i]):
+                        return -1
+
         temp = {}
         vers = None
         if pname  in self.build_dep.keys():
-            for paket in self.build_dep[pname]:
+            for p in self.build_dep[pname]:
+                vers = None
+                paket, state = p
                 if paket.find(",") > 0:
                     pkt, vers = paket.split(",")
                 else: 
                     pkt = paket
                 if pkt in self.binary_repo.paketler.keys():
                     if vers != None:
-                        if vers == self.binary_repo.versiyonlar[pkt]:
-                            temp[paket] = True
-                            vers = None
-                        else:
-                            temp[paket] = False
-                            vers = None
+                        print "!!!!! ",self.binary_repo.versiyonlar[pkt], vers                     
+                        print "!!!!! ",type(self.binary_repo.versiyonlar[pkt]), type(vers)
+
+                        vc = vercheck(str(self.binary_repo.versiyonlar[pkt]), vers)
+                        if state == "eq":
+                            if vc == 0:
+                                temp[paket] = True
+                                vers = None
+                            else:
+                                temp[paket] = False
+                                vers = None
+                        if state == "geq":
+                            if vc in [0,1]:
+                                temp[paket] = True
+                                vers = None
+                            else:
+                                temp[paket] = False
+                                vers = None
                     else:
                         temp[paket] = True
                 else:
@@ -151,9 +187,19 @@ class RepoView(RepoBase):
                 if t.tag == tag:
                     for dep in t.iterchildren():
                         if dep.tag == "Dependency":
+                            state = ""
                             if len(dep.attrib.values()) > 0:
+                                d = dep.attrib.keys()[0]
+                                if d == "version":
+                                    state = "eq"
+                                #FIXME:   releaseFrom degil, versionFrom olmali..
+                                # Paketcileri uyar
+                                if ((d == "versionFrom") or (d == "releaseFrom")):
+                                    state = "geq"
+                                print "attrib.keys :", dep.attrib.keys()
+                                
                                 dep = dep + "," + dep.attrib.values()[0]
-                            temp.append(dep)
+                            temp.append((dep, state))
             return temp
 
         self.yapi = objectify.fromstring(open(self.repoacik,"r").read())

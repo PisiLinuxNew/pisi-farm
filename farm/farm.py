@@ -217,6 +217,7 @@ def githubhook():
     f.write(request.data)
     f.close()
     gitcommit("github-%s.txt" % committarihi)
+    return "OK"
 
 
 @app.route("/updaterunning/", methods = ['GET'])

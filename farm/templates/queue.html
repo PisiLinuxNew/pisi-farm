@@ -10,7 +10,7 @@
    <th>Paket</th>
    <th>Commit</th>
    <th>Durum</th>
-   <th>Bagimliliklari</th>
+   <th>Karsilanmamis Bagimliliklari</th>
 </tr>
   {% for p   in packages %}
 <tr>
@@ -45,9 +45,7 @@
  <td>
   {% if p.paket.adi in build_deps.keys() %}
    {% for k,v in build_deps[p.paket.adi].items()  %}
-    {% if v == True %}
-        <font color="green">  {{ k }} </font> 
-    {% else %}
+    {% if v == False %}
 	<font color="red">  {{ k }} </font>
     {% endif %}
    {% endfor %}

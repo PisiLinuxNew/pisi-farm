@@ -8,6 +8,6 @@ class DockerIndexer(Docker):
         Docker.__init__(self)
         self.params.volume(REPOPATH, '/repo')
         self.set_image_name(BASEIMAGE)
-        self.run("cd %s && pisi index . --skip-signing")
+        self.run("cd %s && pisi index . --skip-signing" % BASEIMAGE)
 
 index = DockerIndexer()
