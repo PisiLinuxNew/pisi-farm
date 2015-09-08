@@ -270,6 +270,7 @@ class Gonullu(Paketci):
         self.docker.set_image_name(self.docker_imaj_adi)
         self.commit_id = d['commit_id']
         self.kernel_gerekli = d['kernel_gerekli']
+        hazirlik(self.kernel_gerekli)
         self.kuyruk_id = d['kuyruk_id']
         self.docker.params.volume('/tmp/%s' % self.paket, "/root")
 
@@ -359,7 +360,6 @@ class Farm:
 
 
 if __name__ == "__main__":
-    hazirlik()
     d = DockerGonullu()
     f = Farm("http://ciftlik.pisilinux.org/ciftlik")
     #f = Farm("http://ciftlik.pisilinux.org:5000")
