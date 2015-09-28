@@ -16,7 +16,7 @@ REPOS = {'0':{'repo' : 'pisilinux/core',
 
 TEST="test"
 
-blacklist = ["module-bbswitch", "module-broadcom-wl", "module-fglrx", "module-nvidia-current", "module-nvidia304", "module-nvidia340", "module-virtualbox", "module-virtualbox-guest"]
+
 
 repos = ses.query(Repo).all()
 

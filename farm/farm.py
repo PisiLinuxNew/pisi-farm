@@ -4,17 +4,17 @@ from wtforms import StringField, SubmitField, BooleanField
 from model import *
 from github import Push
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, update
 from sqlalchemy.sql import label
 import json
 from sqlalchemy.orm import class_mapper
-from repo import repos, REPOBASE
+from repo import repos, REPOBASE, pisi20repo
 from werkzeug import secure_filename
-
+from indexer import DockerIndexer
 
 
 ALLOWED_EXTENSIONS = set(['pisi','log','err', "html"])
-
+blacklist = ["module-bbswitch", "module-broadcom-wl", "module-fglrx", "module-nvidia-current", "module-nvidia304", "module-nvidia340", "module-virtualbox", "module-virtualbox-guest"]
 def allowed_file( filename ):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
@@ -73,8 +73,6 @@ def paketID(pname):
     except:
         id = None
     return id
-
-
 
 @app.route('/packages')
 #@app.route('/packages/<int:page>')
@@ -143,6 +141,26 @@ def queue(qtype = "all"):
         deps = depfind(vals)
         return render_template('queue.html', packages = vals, build_deps = deps)
 
+@app.route('/queue/return/<int:id>')
+def queue_return(id):
+    #FIXME: eger saglanmamis bagimlilik varsa, burada kontrol edilmeli
+    q = ses.query(Kuyruk)
+    q = q.filter(Kuyruk.id == id)
+    rec = q.one()
+    rec.durum = 0
+    ses.flush()
+    return "<html><script> window.history.back(); </script></html>"
+
+@app.route('/queue/delete/<int:id>')
+def queue_delete(id):
+    #FIXME: eger saglanmamis bagimlilik varsa, burada kontrol edilmeli
+    q = ses.query(Kuyruk)
+    q = q.filter(Kuyruk.id == id)
+    rec = q.one()
+    rec.durum = 5000
+    ses.flush() 
+    return "<html><script> window.history.back(); </script></html>"
+
 @app.route('/')
 @app.route('/repo/<int:id>')
 @app.route('/repo/<int:id>/<pkgname>')
@@ -181,7 +199,7 @@ def adminAddRepo():
             ses.commit()
             return "kaydedildi"
         else:
-            return "zaten varmis %d" % sayi
+            return "zaten varmis %d " % sayi
 
 
 @app.route('/requestPkg/<string:email>')
@@ -202,7 +220,7 @@ def requestPkg(email):
     paketadi = ses.query(Paket).filter(Paket.id == kuyruk.paket_id).first().adi
     ses.commit()
     krn = False
-    if paketadi in app.config["blacklist"]:
+    if paketadi in blacklist:
         krn = True
     cevap = {'kuyruk_id': kuyruk.id, 'paket': paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_gerekli': krn}
     print ">>>>> ", cevap
@@ -263,9 +281,10 @@ def gitcommit(fname):
                     ses.commit()
                     pkgid = paketID(pkg)
                 if commitCheck(pkgid, id) == 0:
+                    deplist = []
                     for repoid, repo  in  repos.items():
-                        if p.paket.adi in repo.paketler.keys():
-                            deplist = repo.depcheck(p.paket.adi)
+                        if pkg in repo.paketler.keys():
+                            deplist = repo.depcheck(pkg)
                     drm = 0
                     state = True
                     for dep in deplist:
@@ -305,6 +324,7 @@ def upload():
             f = os.path.join(p, gercek_isim)
             file.save(f)
             hash = os.popen("sha1sum %s" % f, "r").readlines()[0].split()[0].strip()
+            index = DockerIndexer(f)
             return hash 
 
 
