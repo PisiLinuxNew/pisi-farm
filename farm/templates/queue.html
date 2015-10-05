@@ -1,9 +1,20 @@
 {% extends "layout.html" %}
 
-{% block content %}
+{% block top %}
+
   <h2>Kuyruk</h2>
+<a href="waiting"> Bekleyenler</a>
+<a href="failed"> Basarisizlar</a>
+<a href="running"> Su anda calisanlar</a>
+<a href="success"> Basarililar</a>
+<p>
+
+{% endblock %}
+
+{% block content %}
 <table border=1>
 <tr>
+   <th>id</th>
    <th>Tarih</th>
    <th>Repo</th>
    <th>Branch</th>
@@ -11,9 +22,11 @@
    <th>Commit</th>
    <th>Durum</th>
    <th>Karsilanmamis Bagimliliklari</th>
+   <th>Islemler</th>
 </tr>
   {% for p   in packages %}
 <tr>
+  <td>{{ p.id       }}</td>
   <td>{{ p.tarih       }}</td>
   <td>{{ p.repository  }}</td>
   <td>{{ p.branch      }}</td>
@@ -50,6 +63,11 @@
     {% endif %}
    {% endfor %}
   {% endif %}
+  </td>
+
+  <td>
+    <a href=/ciftlik/queue/return/{{ p.id }} > <img title="Geri al" alt="Kuyruga geri al" src="{{ url_for('static', filename='image/geri.png') }}" ></a>
+    <a href=/ciftlik/queue/delete/{{ p.id }} > <img title="Sil" alt="Kuyruktan sil" src="{{ url_for('static', filename='image/cop.png') }}" ></a>
   </td>
 
 </tr>

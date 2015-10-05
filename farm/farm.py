@@ -116,7 +116,7 @@ def queue(qtype = "all"):
         return deplist
 
     if qtype == "all":
-        vals = ses.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.tarih.asc()).all()
+        vals = ses.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.id.desc()).all()
         deps = depfind(vals)
         return render_template('queue.html', packages = vals, build_deps = deps)
     else:
@@ -137,7 +137,7 @@ def queue(qtype = "all"):
             if durum == "success":
                 durumlar.append(999)
             print durumlar
-        vals = ses.query(Kuyruk).filter(Kuyruk.durum.in_(durumlar)).join(Paket).order_by(Kuyruk.tarih.asc()).all()
+        vals = ses.query(Kuyruk).filter(Kuyruk.durum.in_(durumlar)).join(Paket).order_by(Kuyruk.id.desc()).all()
         deps = depfind(vals)
         return render_template('queue.html', packages = vals, build_deps = deps)
 
@@ -295,7 +295,7 @@ def gitcommit(fname):
                                       commit_url=url, durum=drm, repository=rep, \
                                       branch=bra)
                     ses.add(k)
-                    ses.commit()
+                    ses.commit() 
         return p.ref
     return p.ref
 
@@ -324,7 +324,8 @@ def upload():
             f = os.path.join(p, gercek_isim)
             file.save(f)
             hash = os.popen("sha1sum %s" % f, "r").readlines()[0].split()[0].strip()
-            index = DockerIndexer(f)
+            if f.endswith("pisi"):
+                index = DockerIndexer(f)
             return hash 
 
 
