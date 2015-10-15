@@ -14,7 +14,7 @@ from indexer import DockerIndexer
 
 
 ALLOWED_EXTENSIONS = set(['pisi','log','err', "html"])
-blacklist = ["module-bbswitch", "module-broadcom-wl", "module-fglrx", "module-nvidia-current", "module-nvidia304", "module-nvidia340", "module-virtualbox", "module-virtualbox-guest"]
+blacklist = ["module-bbswitch", "module-broadcom-wl", "module-fglrx", "module-nvidia-current", "module-nvidia304", "module-nvidia340", "module-virtualbox", "module-virtualbox-guest", "ndiswrapper"]
 def allowed_file( filename ):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
@@ -207,11 +207,16 @@ def requestPkg(email):
     try:
         gonullu_id = ses.query(Gonullu).filter(Gonullu.email == email).one().id
     except:
-        return "ilkermanap@gmail.com adresine mektup atarak gonullu olmak istediginizi belirtin"
-    kuyruk = ses.query(Kuyruk).filter(Kuyruk.durum == 0 ).order_by(Kuyruk.id.asc()).first()
-    k = ses.query(Kuyruk)
-    k = k.filter(Kuyruk.id == kuyruk.id)
-    kayit = k.one()
+        cevap = {'durum': 'mail yok', 'mesaj': "ilkermanap@gmail.com adresine mektup atarak gonullu olmak istediginizi belirtin"}
+        return jsonify(cevap)
+    try:
+        kuyruk = ses.query(Kuyruk).filter(Kuyruk.durum == 0 ).order_by(Kuyruk.id.asc()).first()
+        k = ses.query(Kuyruk)
+        k = k.filter(Kuyruk.id == kuyruk.id)
+        kayit = k.one()
+    except:
+        cevap = {'durum': 'paket yok', 'mesaj':'Daha fazla bekleyin'}
+        return jsonify(cevap)
     kayit.durum = 100
     ses.flush()
     yeniGorev = Gorev(gonullu_id=gonullu_id, kuyruk_id = kuyruk.id)
@@ -222,7 +227,7 @@ def requestPkg(email):
     krn = False
     if paketadi in blacklist:
         krn = True
-    cevap = {'kuyruk_id': kuyruk.id, 'paket': paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_gerekli': krn}
+    cevap = {'durum': 'ok','kuyruk_id': kuyruk.id, 'paket': paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_gerekli': krn}
     print ">>>>> ", cevap
     return jsonify(cevap)
 

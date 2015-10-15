@@ -53,6 +53,7 @@ class Commit:
         self.removed = values['removed']
         self.id = values['id']
         self.modifiedPackages = self.modifiedPkg()
+        self.reindex = False
 
     def html(self):
         mes = "%s" % self.message
@@ -69,6 +70,8 @@ class Commit:
         temp = []
         for l in self.added:
             filename = l.split("/")[-1].strip()
+            if filename in ("pisi-index.xml","pisi-index.xml.xz" ):
+                self.reindex = True
             if filename in ("index.html","README.md"):
                 pass
             elif l.find("/files/") > -1:
@@ -82,6 +85,8 @@ class Commit:
  
         for l in self.modified:
             filename = l.split("/")[-1].strip()
+            if filename in ("pisi-index.xml","pisi-index.xml.xz" ):
+                self.reindex = True
             if filename in ("index.html","README.md"):
                 pass
             elif l.find("/files/") > -1:
@@ -113,9 +118,11 @@ class Push:
         self.content = open(fname).read()
         self.data = json.loads(self.content)
         self.commits = {}
+        self.reindex = False
         self.modified()
         self.ref = self.data['ref'].split("/")[-1]
         self.sender = Sender(self.data['sender'])
+
 
     def db(self):
         temp = {}
@@ -133,6 +140,8 @@ class Push:
             commits = self.data['commits']
             for l in commits:
                 temp = Commit(l)
+                if temp.reindex == True:
+                    self.reindex = True
                 self.commits[temp.timestamp] = temp
 
     def pprint(self):

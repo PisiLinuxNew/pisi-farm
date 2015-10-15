@@ -8,6 +8,7 @@ import requests
 
 EMAIL = "ilkermanap@gmail.com"
 
+docker_name_allowed_characters = "abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ_"
 
 def hazirlik(kernel_gerekli):
     krn = " "
@@ -57,6 +58,11 @@ def hafiza():
     swp = int(os.popen("free -m | grep Swap").readlines()[0].split()[1])
     return mem, swp
 
+def bekle(n, mesaj):
+    times = n / 5
+    for i in range(times):
+        print("%s. Durdurmak icin CTRL-C'ye basiniz. %d sn kaldi." % (mesaj,(n -(i*5))))
+        time.sleep(5)
 
 class DockerParams:
     """
@@ -76,10 +82,20 @@ class DockerParams:
         self.docker_hafiza = self.sistem_hafiza / 2
         self.docker_takas = -1
         self.cpu_kota = 1
-        self.cpu_period = 100000
+        self.cpu_period = 400000
         self.cpu_quota = self.cpu_kota * self.cpu_period
         self.volumes = {}
         self.name = ""
+
+    def set_name(self, new_name):
+        import random
+        temp = ""
+        for c in new_name:
+            if c not in docker_name_allowed_characters:
+                c = docker_name_allowed_characters[random.randint(1,51)]
+            temp += c
+        #self.name = temp
+        self.name = new_name
 
     def set_hafiza(self, yeni_docker_hafiza, yeni_docker_takas):
         self.docker_hafiza = yeni_docker_hafiza
@@ -141,6 +157,7 @@ class Docker:
         # TODO: derle dizini uygulamanin kuruldugu yerde olmali.. boylece kullaniciya kopyalatmayiz.
         # TODO: ya da
         self.params.volume('/tmp/derle', '/derle')
+        self.params.set_cpu(1)
 
     def set_image_name(self, newname):
         self.image = newname
@@ -221,7 +238,7 @@ class Gelistirici(Paketci):
     def farm_paket_al(self, email=EMAIL):
         d = self.farm.kuyruktan_paket_al(email)
         self.paket = d['paket']
-        self.docker.params.name = self.paket
+        self.docker.params.set_name( self.paket)
         self.repo = d['repo']
         self.branch = d['branch']
         self.docker_imaj_adi = self.farm.docker_adi(d['repo'], d['branch'])
@@ -261,24 +278,38 @@ class Gonullu(Paketci):
         self.gonder()
 
     def farm_paket_al(self, email=EMAIL):
-        d = self.farm.kuyruktan_paket_al(email)
-        self.paket = d['paket']
-        self.docker.params.name = self.paket
-        self.repo = d['repo']
-        self.branch = d['branch']
-        self.docker_imaj_adi = self.farm.docker_adi(d['repo'], d['branch'])
-        self.docker.set_image_name(self.docker_imaj_adi)
-        self.commit_id = d['commit_id']
-        self.kernel_gerekli = d['kernel_gerekli']
-        hazirlik(self.kernel_gerekli)
-        self.kuyruk_id = d['kuyruk_id']
-        self.docker.params.volume('/tmp/%s' % self.paket, "/root")
+            d = self.farm.kuyruktan_paket_al(email)
+            if d['durum'] == 'paket yok':
+                bekleme = True
+                n = 10
+                while bekleme == True:
+                    bekle(n, "Derlenecek paket yok")
+                    d = self.farm.kuyruktan_paket_al(email)
+                    if d['durum'] == 'ok':
+                        bekleme = False
+                    else:
+                        n += 10
+                        if n > 300:
+                            n = 300
+
+            if d['durum'] == "ok":
+                self.paket = d['paket']
+                self.docker.params.set_name(self.paket)
+                self.repo = d['repo']
+                self.branch = d['branch']
+                self.docker_imaj_adi = self.farm.docker_adi(d['repo'], d['branch'])
+                self.docker.set_image_name(self.docker_imaj_adi)
+                self.commit_id = d['commit_id']
+                self.kernel_gerekli = d['kernel_gerekli']
+                hazirlik(self.kernel_gerekli)
+                self.kuyruk_id = d['kuyruk_id']
+                self.docker.params.volume('/tmp/%s' % self.paket, "/root")
 
     def gonder(self):
         liste = glob.glob("/tmp/%s/*.[lpe]*" % self.paket)
         print liste
         self.farm.dosyalari_gonder(liste, self.repo, self.branch)
-        if self.docker.rm("%s-sil" % self.paket) != 0:
+        if self.docker.rm("%s-sil" % self.docker.params.name) != 0:
             print "imaj silinemedi ", self.paket
         tmptemizle = "rm -rf /tmp/%s" % self.paket
         os.system(tmptemizle)
@@ -361,13 +392,11 @@ class Farm:
 
 if __name__ == "__main__":
     d = DockerGonullu()
+    d.params.set_cpu(0.7234)
     f = Farm("http://ciftlik.pisilinux.org/ciftlik")
     #f = Farm("http://ciftlik.pisilinux.org:5000")
     while 1:
         g = Gonullu(f, d)
-        for i in range(10):
-            print "Kalan %d sn. Durdurmak icin simdi ctrl-c ile kesebilirsiniz.." % ((10 - i) * 3)
-            time.sleep(3)
 
 """
 docker run -itd 
