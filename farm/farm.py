@@ -10,7 +10,7 @@ import json
 from sqlalchemy.orm import class_mapper
 from repo import repos, REPOBASE, pisi20repo
 from werkzeug import secure_filename
-from indexer import DockerIndexer
+from indexer import  DockerIndexer
 
 
 ALLOWED_EXTENSIONS = set(['pisi','log','err', "html"])
@@ -301,6 +301,8 @@ def gitcommit(fname):
                                       branch=bra)
                     ses.add(k)
                     ses.commit() 
+                else:
+                    print pkg, "  sorun var"
         return p.ref
     return p.ref
 

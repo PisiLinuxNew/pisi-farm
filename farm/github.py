@@ -68,6 +68,23 @@ class Commit:
 
     def modifiedPkg(self):
         temp = []
+        for l in self.removed:
+            filename = l.split("/")[-1].strip()
+            if filename in ("index.html","README.md"):
+                pass
+            elif l.find("/files/") > -1:
+                pass
+            else:
+                if (filename.find("patch") > -1):
+                    print filename
+                    a = l.split("/")
+                    if len(a) > 2 :
+                        pkgName = l.split("/")[-3]
+                        if pkgName not in temp:
+                            print "added filename in removed ", pkgName
+                            temp.append(pkgName)
+
+
         for l in self.added:
             filename = l.split("/")[-1].strip()
             if filename in ("pisi-index.xml","pisi-index.xml.xz" ):
@@ -89,12 +106,15 @@ class Commit:
                 self.reindex = True
             if filename in ("index.html","README.md"):
                 pass
-            elif l.find("/files/") > -1:
+            elif (l.find("/files/") > -1) and (l.find("patch") == -1):
                 pass
             else:
                 a = l.split("/")
                 if len(a) > 2 :
-                    pkgName = l.split("/")[-2]
+                    if l.find("patch") > -1:
+                        pkgName = l.split("/")[-3]
+                    else:
+                        pkgName = l.split("/")[-2]
                     if pkgName not in temp:
                         temp.append(pkgName)
         print " eklenecekler :", temp
