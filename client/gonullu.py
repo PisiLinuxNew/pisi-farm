@@ -8,7 +8,11 @@ import requests
 
 EMAIL = "ilkermanap@gmail.com"
 
+<<<<<<< HEAD
+docker_name_allowed_characters = "abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ-_1234567890"
+=======
 docker_name_allowed_characters = "abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ_"
+>>>>>>> 282ce8ca099f350610d902f2ac6480421b4c2e49
 
 def hazirlik(kernel_gerekli):
     krn = " "
@@ -18,8 +22,9 @@ def hazirlik(kernel_gerekli):
 service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel %s
 pisi ar core https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz && pisi ar main https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz --at 2
 pisi ur
+sed -i 's/-j5/-j12/g' /etc/pisi/pisi.conf
 cd /root
-pisi bi --ignore-safety -y $3 1>$1-$2-$3.log 2>$1-$2-$3.err
+pisi bi --ignore-safety --ignore-sandbox -y $3 1>$1-$2-$3.log 2>$1-$2-$3.err
 STAT=$?
 for s in `ls *.pisi`
 do
@@ -92,10 +97,16 @@ class DockerParams:
         temp = ""
         for c in new_name:
             if c not in docker_name_allowed_characters:
+<<<<<<< HEAD
+                c = docker_name_allowed_characters[random.randint(1,50)]
+            temp += c
+        self.name = temp
+=======
                 c = docker_name_allowed_characters[random.randint(1,51)]
             temp += c
         #self.name = temp
         self.name = new_name
+>>>>>>> 282ce8ca099f350610d902f2ac6480421b4c2e49
 
     def set_hafiza(self, yeni_docker_hafiza, yeni_docker_takas):
         self.docker_hafiza = yeni_docker_hafiza
@@ -157,7 +168,11 @@ class Docker:
         # TODO: derle dizini uygulamanin kuruldugu yerde olmali.. boylece kullaniciya kopyalatmayiz.
         # TODO: ya da
         self.params.volume('/tmp/derle', '/derle')
+<<<<<<< HEAD
+        self.params.set_cpu(0.7)
+=======
         self.params.set_cpu(1)
+>>>>>>> 282ce8ca099f350610d902f2ac6480421b4c2e49
 
     def set_image_name(self, newname):
         self.image = newname
@@ -392,11 +407,19 @@ class Farm:
 
 if __name__ == "__main__":
     d = DockerGonullu()
+<<<<<<< HEAD
+    d.params.set_cpu(1)
+=======
     d.params.set_cpu(0.7234)
+>>>>>>> 282ce8ca099f350610d902f2ac6480421b4c2e49
     f = Farm("http://ciftlik.pisilinux.org/ciftlik")
     #f = Farm("http://ciftlik.pisilinux.org:5000")
     while 1:
         g = Gonullu(f, d)
+<<<<<<< HEAD
+        bekle(15,"Yeni paket almadan once durdurmak icin CTRL-C")
+=======
+>>>>>>> 282ce8ca099f350610d902f2ac6480421b4c2e49
 
 """
 docker run -itd 
