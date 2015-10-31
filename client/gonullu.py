@@ -1,17 +1,30 @@
 import urllib2
 import os
+import sys
 import json
 import glob
 import time
 
-import requests
+
+try:
+    import requests
+except:
+    print("Please install python-requests package.\nLutfen python-requests paketini yukleyin.")
+    sys.exit()
+
+try:
+    import argparse
+except:
+    print("Please install python-argparse package.\nLutfen python-argparse paketini yukleyin.")
+    sys.exit()
+
 
 EMAIL = "ilkermanap@gmail.com"
 
 
 docker_name_allowed_characters = "abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ-_1234567890"
 
-def hazirlik(kernel_gerekli):
+def hazirlik(kernel_gerekli, j = 5):
     krn = " "
     if kernel_gerekli == True:
         krn = " kernel "
@@ -19,7 +32,7 @@ def hazirlik(kernel_gerekli):
 service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel %s
 pisi ar core https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz && pisi ar main https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz --at 2
 pisi ur
-sed -i 's/-j5/-j12/g' /etc/pisi/pisi.conf
+sed -i 's/-j5/-j%d/g' /etc/pisi/pisi.conf
 cd /root
 pisi bi --ignore-safety --ignore-sandbox -y $3 1>$1-$2-$3.log 2>$1-$2-$3.err
 STAT=$?
@@ -28,7 +41,7 @@ do
   mv $s $1-$2-$s
 done
 echo $STAT >  $3.bitti
-""" % krn
+""" % (krn, j)
 
     gelistirsh = """#!/bin/bash
 # birinci paket adi,
@@ -79,15 +92,20 @@ class DockerParams:
     cpu %50,
     """
 
-    def __init__(self):
+    def __init__(self, params = None):
         self.sistem_hafiza, self.sistem_takas = hafiza()
-        self.docker_hafiza = self.sistem_hafiza / 2
+        self.docker_hafiza = self.sistem_hafiza * 0.5
         self.docker_takas = -1
         self.cpu_kota = 1
         self.cpu_period = 400000
         self.cpu_quota = self.cpu_kota * self.cpu_period
         self.volumes = {}
         self.name = ""
+        if params is not None:
+            print params
+            self.cpu_kota = params.cpu / 100
+            self.cpu_quota = self.cpu_kota * self.cpu_period
+            self.docker_hafiza = self.sistem_takas * params.memory / 100
 
     def set_name(self, new_name):
         import random
@@ -147,20 +165,14 @@ class DockerParams:
         return "%s %s %s %s %s %s " % (self.name_str(), self.cpu_str(), self.mem_str(),
                                        self.volumes_str(), image, extra)
 
-
 class Docker:
-    def __init__(self):
+    def __init__(self, params = None):
         self.started = self.start()
         self.image = ""
         self.id = None
-        self.params = DockerParams()
-        #self.params.volume('/var/cache/pisi/packages', '/var/cache/pisi/packages')
-        #self.params.volume('/var/cache/pisi/archives', '/var/cache/pisi/archives')
-        # TODO: derle dizini uygulamanin kuruldugu yerde olmali.. boylece kullaniciya kopyalatmayiz.
-        # TODO: ya da
+        self.params = DockerParams(params)
+        self.cpucount = params.cpucount
         self.params.volume('/tmp/derle', '/derle')
-        self.params.set_cpu(0.7)
-
 
     def set_image_name(self, newname):
         self.image = newname
@@ -190,11 +202,7 @@ class Docker:
     def start(self):
         if self.check() != 0:
             print "Starting docker"
-            #cmd1 = "sudo cgroupfs-mount"
             cmd2 = "docker -d &"
-            #print "Mounting cgroupfs"
-            #stat1 = os.system(cmd1)
-            print "Starting docker daemon"
             stat2 = os.system(cmd2)
             if stat2 == 0:
                 return True
@@ -205,8 +213,8 @@ class Docker:
 
 
 class DockerGonullu(Docker):
-    def __init__(self):
-        Docker.__init__(self)
+    def __init__(self, params = None):
+        Docker.__init__(self, params)
         self.params.volume('/var/cache/pisi/packages', '/var/cache/pisi/packages')
         self.params.volume('/var/cache/pisi/archives', '/var/cache/pisi/archives')
         self.params.volume('/tmp/derle', '/derle')
@@ -304,7 +312,7 @@ class Gonullu(Paketci):
                 self.docker.set_image_name(self.docker_imaj_adi)
                 self.commit_id = d['commit_id']
                 self.kernel_gerekli = d['kernel_gerekli']
-                hazirlik(self.kernel_gerekli)
+                hazirlik(self.kernel_gerekli, self.docker.cpucount)
                 self.kuyruk_id = d['kuyruk_id']
                 self.docker.params.volume('/tmp/%s' % self.paket, "/root")
 
@@ -388,25 +396,53 @@ class Farm:
                 while not(self.dosya_gonder(f, repo, branch)):
                     print f, " deniyoruz"
                     time.sleep(5)
-
-
         print liste
 
 
+
+def kullanim():
+    print """
+Kullanim - Usage
+
+Asagidaki satir, docker icindeki /etc/pisi/pisi.conf icinde bulunan
+-j parametresini verecegimiz rakam ile degistirir.
+The command below replaces the -j parameter in the file in the  docker
+image /etc/pisi/pisi.conf with the number given from command line.
+
+sudo python gonullu.py -j 24
+
+
+Asagidaki satir, docker icin islemcinin %70'ini, fiziksel hafizanin
+%25'ini  ayirir.
+The command below reserves %70 of cpu and %25 of physical memory for
+docker.
+
+sudo python gonullu.py --cpu=70 --memory=25
+
+"""
+    sys.exit()
+
 if __name__ == "__main__":
-    d = DockerGonullu()
-    d.params.set_cpu(0.7234)
+    parser = argparse.ArgumentParser(description='This is pisilinux volunteer application')
+    parser.add_argument('-k', '--kullanim', action="store_true", help="Kullanim. Usage")
+    parser.add_argument('-j', '--make-j-num', action="store", dest="cpucount", default=5, type=int,
+                        help="make icin -j parametresine verilecek rakam. The number for the make -j")
+    parser.add_argument('-e','--email', action="store", dest="email", type=str,
+                        help="kuyruktan paket alirken gonderilecek olan mail adresi. Email address of the volunteer.")
+    parser.add_argument('-c','--cpu', action='store', dest='cpu',type=int, default=70,
+                        help="islemci kullanma yuzdesi. 1-100 arasi tamsayi. Cpu limit for docker. A number between 1-100 as percent.")
+    parser.add_argument('-m', '--memory', action='store', dest='memory',type=int, default=50,
+                        help="Hafiza kullanma yuzdesi. 1-100 arasi tamsayi. Memory limit for docker. A number between 1-100 as percent of total physical memory")
+
+    args = parser.parse_args()
+    if args.kullanim:
+        kullanim()
+
+
+    d = DockerGonullu(args)
     f = Farm("http://ciftlik.pisilinux.org/ciftlik")
     #f = Farm("http://ciftlik.pisilinux.org:5000")
     while 1:
         g = Gonullu(f, d)
         bekle(15,"Yeni paket almadan once durdurmak icin CTRL-C")
 
-"""
-docker run -itd 
--v /home/packages:/var/cache/pisi/packages 
--v /home/archives:/var/cache/pisi/archives 
--v /home/ertugrul/Works/manap_se/build:/root 
--v /home/ertugrul/Works/PisiLinux:/git 
-ertugerata/pisi-chroot-farm bash 
-"""
