@@ -8,10 +8,13 @@ from sqlalchemy import func, update
 from sqlalchemy.sql import label
 import json
 from sqlalchemy.orm import class_mapper
-from repo import repos, REPOBASE, pisi20repo
+from repo import repos, REPOBASE, pisi20repo, RepoBinary, RepoView
 from werkzeug import secure_filename
 from indexer import  DockerIndexer
+from performance import *
 
+
+perf = Performance()
 
 ALLOWED_EXTENSIONS = set(['pisi','log','err', "html"])
 blacklist = ["module-bbswitch", "module-broadcom-wl", "module-fglrx", "module-nvidia-current", "module-nvidia304", "module-nvidia340", "module-virtualbox", "module-virtualbox-guest", "ndiswrapper"]
@@ -44,7 +47,10 @@ class RepoForm(Form):
 
 def repostat(repoid = -1):
     if repoid == -1:
-        return ses.query(Kuyruk.repository, Kuyruk.branch, Kuyruk.durum, label('sayi', func.count(Kuyruk.id))).group_by(Kuyruk.repository, Kuyruk.branch, Kuyruk.durum).all()
+        try:
+            return ses.query(Kuyruk.repository, Kuyruk.branch, Kuyruk.durum, label('sayi', func.count(Kuyruk.id))).group_by(Kuyruk.repository, Kuyruk.branch, Kuyruk.durum).all()
+        except:
+            pass
     else:
         cevap = ses.query(Repo.repo, Repo.branch).filter_by(id=repoid).one()
         c2 = ses.query(Kuyruk.repository, Kuyruk.branch, Kuyruk.durum,
@@ -73,6 +79,10 @@ def paketID(pname):
     except:
         id = None
     return id
+
+
+
+
 
 @app.route('/packages')
 #@app.route('/packages/<int:page>')
@@ -114,6 +124,7 @@ def queue(qtype = "all"):
                 if p.paket.adi in repo.paketler.keys():
                     deplist[p.paket.adi] = repo.depcheck(p.paket.adi)
         return deplist
+    deps = {}
 
     if qtype == "all":
         vals = ses.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.id.desc()).all()
@@ -137,8 +148,12 @@ def queue(qtype = "all"):
             if durum == "success":
                 durumlar.append(999)
             print durumlar
-        vals = ses.query(Kuyruk).filter(Kuyruk.durum.in_(durumlar)).join(Paket).order_by(Kuyruk.id.desc()).all()
-        deps = depfind(vals)
+        try:
+            vals = ses.query(Kuyruk).filter(Kuyruk.durum.in_(durumlar)).join(Paket).order_by(Kuyruk.id.desc()).all()
+            deps = depfind(vals)
+        except:
+            import traceback as tb
+            return tb.format_exc()
         return render_template('queue.html', packages = vals, build_deps = deps)
 
 @app.route('/queue/return/<int:id>')
@@ -245,6 +260,9 @@ def githubhook():
     gitcommit("github-%s.txt" % committarihi)
     return "OK"
 
+@app.route('/performance/', methods = ['POST','GET'])
+def perf_mon():
+    return "Deneme"
 
 @app.route("/updaterunning/", methods = ['GET'])
 def updaterunning():
@@ -268,6 +286,11 @@ def updaterunning():
 def gitcommit(fname):
     f = "/tmp/%s" % fname
     p = Push(f)
+    if p.reindex == True:
+        rp = ses.query(Repo).all()
+        for r in rp:
+            repos[r.id] = RepoView(r, True, pisi20repo)
+
     d = p.db()
     bra = p.ref
     rep = p.data['repository']["full_name"].replace("https://github.com/", "")
@@ -275,10 +298,13 @@ def gitcommit(fname):
         tar = p.data['repository']['updated_at']
         tar = tar.replace("Z","").replace("T"," ")
         t = datetime.strptime(tar,"%Y-%m-%d %H:%M:%S")
-        for _id, com in p.db().items():
+        for _id, com in p.db2().items():
+            print "gitcommit, com.modified :",com['modified']
             id = com['id']
             url = com['url']
+            print com['timestamp'], len(com['modified'])
             for pkg in com['modified']:
+                print pkg
                 pkgid = paketID(pkg)
                 if pkgid == None:
                     ppp = Paket(adi=pkg, aciklama="%s icin aciklama eklenmeli" % pkg)
@@ -301,6 +327,7 @@ def gitcommit(fname):
                                       branch=bra)
                     ses.add(k)
                     ses.commit() 
+                    ses.flush()
                 else:
                     print pkg, "  sorun var"
         return p.ref

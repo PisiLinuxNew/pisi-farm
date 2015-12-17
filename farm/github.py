@@ -3,7 +3,7 @@ import json, glob,os
 
 class Sender:
     def __init__(self, values):
-        self.values = values
+        self.values =  values
         v = values
         self.following_url = v['following_url']
         self.events_url = v['events_url']
@@ -52,8 +52,10 @@ class Commit:
         self.message = values['message']
         self.removed = values['removed']
         self.id = values['id']
-        self.modifiedPackages = self.modifiedPkg()
+        self.modifiedPackages = []
+        self.modifiedPkg()
         self.reindex = False
+
 
     def html(self):
         mes = "%s" % self.message
@@ -67,22 +69,20 @@ class Commit:
             (self.timestamp, author, url, temp, mes)
 
     def modifiedPkg(self):
-        temp = []
         for l in self.removed:
             filename = l.split("/")[-1].strip()
             if filename in ("index.html","README.md"):
-                pass
+                continue
             elif l.find("/files/") > -1:
-                pass
+                continue
             else:
                 if (filename.find("patch") > -1):
-                    print filename
                     a = l.split("/")
                     if len(a) > 2 :
                         pkgName = l.split("/")[-3]
-                        if pkgName not in temp:
+                        if pkgName not in self.modifiedPackages:
                             print "added filename in removed ", pkgName
-                            temp.append(pkgName)
+                            self.modifiedPackages.append(pkgName)
 
 
         for l in self.added:
@@ -90,24 +90,24 @@ class Commit:
             if filename in ("pisi-index.xml","pisi-index.xml.xz" ):
                 self.reindex = True
             if filename in ("index.html","README.md"):
-                pass
+                continue
             elif l.find("/files/") > -1:
-                pass
+                continue
             else:
                 a = l.split("/")
                 if len(a) > 2 :
                     pkgName = l.split("/")[-2]
-                    if pkgName not in temp:
-                        temp.append(pkgName)  
+                    if pkgName not in self.modifiedPackages:
+                        self.modifiedPackages.append(pkgName)  
  
         for l in self.modified:
             filename = l.split("/")[-1].strip()
             if filename in ("pisi-index.xml","pisi-index.xml.xz" ):
                 self.reindex = True
             if filename in ("index.html","README.md"):
-                pass
+                continue
             elif (l.find("/files/") > -1) and (l.find("patch") == -1):
-                pass
+                continue
             else:
                 a = l.split("/")
                 if len(a) > 2 :
@@ -115,10 +115,9 @@ class Commit:
                         pkgName = l.split("/")[-3]
                     else:
                         pkgName = l.split("/")[-2]
-                    if pkgName not in temp:
-                        temp.append(pkgName)
-        print " eklenecekler :", temp
-        return temp
+                    if pkgName not in self.modifiedPackages:
+                        self.modifiedPackages.append(pkgName)
+        #print " eklenecekler :", self.modifiedPackages
 
 
     def report(self):
@@ -128,7 +127,8 @@ class Commit:
 
     def db(self):
         if len(self.modifiedPackages) > 0:
-            return {"timestamp": self.timestamp, "id" : self.id, "url" : self.url, "modified" : self.modifiedPackages}
+            retval = {"timestamp": self.timestamp, "id" : self.id, "url" : self.url, "modified" : self.modifiedPackages}
+            return retval
         return None
 
 
@@ -143,6 +143,15 @@ class Push:
         self.ref = self.data['ref'].split("/")[-1]
         self.sender = Sender(self.data['sender'])
 
+    def db2(self):
+        temp = {}
+        for k,v in self.commits.items():
+            pkglist = v.db()
+
+            if (pkglist is not None) and (v.message.find("Merge pull") == -1):
+                print k, v.message
+                temp[k] = v.db()
+        return temp
 
     def db(self):
         temp = {}
@@ -162,7 +171,7 @@ class Push:
                 temp = Commit(l)
                 if temp.reindex == True:
                     self.reindex = True
-                self.commits[temp.timestamp] = temp
+                self.commits[temp.id] = temp
 
     def pprint(self):
         print json.dumps(self.data, indent = 4)
@@ -185,21 +194,12 @@ class PushStr(Push):
         self.sender = Sender(self.data['sender'])
 
 if __name__ == "__main__":
-    import sys
+    import sys, pprint
     indir = sys.argv[1]
-    outfile = sys.argv[2]
     os.chdir(indir)
-    out = open(outfile,"w")
-    out.write("<html>")
     files = sorted(glob.glob("*.txt"), reverse=True)
     for f in files:
-        print f
         x = Push(f)
-        page = x.html()
-        if len(page) > 45:
-            out.write(page)
-    out.write("</html>")
-    out.close()
-    #x.pprint()
+        y = x.db2()
 
 
