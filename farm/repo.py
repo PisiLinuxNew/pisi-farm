@@ -122,14 +122,15 @@ class RepoView(RepoBase):
                 v1p = v1.split(".")
                 v2p = v2.split(".")
                 n1 = len(v1p)
-                if n1 < len(v2p):
+                if n1 > len(v2p):
                     n1 = len(v2p)
-                
                 for i in range(n1):
                     if int(v1p[i]) > int(v2p[i]):
                         return 1
                     elif int(v1p[i]) < int(v2p[i]):
                         return -1
+                if len(v1p) > len(v2p):
+                    return 1
 
         temp = {}
         vers = None

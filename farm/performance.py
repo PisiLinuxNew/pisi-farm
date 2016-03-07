@@ -3,7 +3,6 @@ class PackageLog:
         self.name = pname
         self.err = None
         self.log = None
-        self.log = None
 
 class Volunteer:
     def __init__(self, email):
@@ -14,6 +13,12 @@ class Volunteer:
 
     def add_package(self, pkg):
         self.packages[pkg.name] = pkg
+
+    def report(self):
+        pkg = {}
+        for p in self.packages:
+            pkg[p.name] = { "log": p.log, "err": p.err }
+        return { "email": self.email , "load": self.load, "memory": self.memory, "pkg": pkg }
 
 
 class Performance:
@@ -36,3 +41,7 @@ class Performance:
             t += h.load
         return t
 
+    def report(self):
+        temp = {}
+        for v in self.volunteers.items():
+            temp[vl.email] = v.report()

@@ -149,7 +149,6 @@ class Push:
             pkglist = v.db()
 
             if (pkglist is not None) and (v.message.find("Merge pull") == -1):
-                print k, v.message
                 temp[k] = v.db()
         return temp
 

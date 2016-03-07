@@ -17,7 +17,7 @@ from performance import *
 perf = Performance()
 
 ALLOWED_EXTENSIONS = set(['pisi','log','err', "html"])
-blacklist = ["module-bbswitch", "module-broadcom-wl", "module-fglrx", "module-nvidia-current", "module-nvidia304", "module-nvidia340", "module-virtualbox", "module-virtualbox-guest", "ndiswrapper"]
+blacklist = ["module-bbswitch", "module-broadcom-wl", "module-fglrx", "module-nvidia-current", "module-nvidia304", "module-nvidia340", "module-virtualbox", "module-virtualbox-guest", "ndiswrapper", "virtualbox", "klibc"]
 def allowed_file( filename ):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
@@ -45,6 +45,16 @@ class RepoForm(Form):
     submit = SubmitField('Kaydet')
 
 
+class States:
+    OK = 200
+    MAILERR = 401
+    NOPACKAGE = 402
+    NODOCKERIMAGE = 403
+
+states=States()
+
+
+
 def repostat(repoid = -1):
     if repoid == -1:
         try:
@@ -63,8 +73,8 @@ def check_branch_db(r, b):
     return (ses.query(Repo).filter_by(enable=True,repo=r, branch=b).count() == 1)
 
 def check_branch(r, b):
-    for k, v in app.config["REPOS"].items():
-        if ((v['repo'] == r) and (v['branch'] == b)):
+    for k, v in repos.items():
+        if ((v.repo == r) and (v.branch == b)):
             return True
     return False
 
@@ -80,6 +90,11 @@ def paketID(pname):
         id = None
     return id
 
+def docker_image_name(r,b):
+    for k, v in repos.items():
+        if ((v.repo == r) and (v.branch == b)):
+            return v.dockerimage
+    return None
 
 
 
@@ -125,9 +140,9 @@ def queue(qtype = "all"):
                     deplist[p.paket.adi] = repo.depcheck(p.paket.adi)
         return deplist
     deps = {}
-
+    limit=200
     if qtype == "all":
-        vals = ses.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.id.desc()).all()
+        vals = ses.query(Kuyruk).filter(Kuyruk.durum < 1000).join(Paket).order_by(Kuyruk.id.desc()).limit(limit).all()
         deps = depfind(vals)
         return render_template('queue.html', packages = vals, build_deps = deps)
     else:
@@ -147,9 +162,8 @@ def queue(qtype = "all"):
                 durumlar.append(101)
             if durum == "success":
                 durumlar.append(999)
-            print durumlar
         try:
-            vals = ses.query(Kuyruk).filter(Kuyruk.durum.in_(durumlar)).join(Paket).order_by(Kuyruk.id.desc()).all()
+            vals = ses.query(Kuyruk).filter(Kuyruk.durum.in_(durumlar)).join(Paket).order_by(Kuyruk.id.desc()).limit(limit).all()
             deps = depfind(vals)
         except:
             import traceback as tb
@@ -187,10 +201,13 @@ def home(id = -1, pkgname = ""):
             return render_template('repodetail.html', repo = [repo], stat = stat, pkgs = sorted(repo.paketler.keys()))
         else:
             pkg = repos[id].pkginfo(pkgname)
-            return render_template('pkgdetail.html', repo = [repo], stat = stat, pkg = pkg)
+            vals = ses.query(Kuyruk).filter(Kuyruk.paket_id==paketID(pkgname)).join(Paket).order_by(Kuyruk.id.desc()).all()
+            
+            return render_template('pkgdetail.html', repo = [repo], stat = stat, pkg = pkg, commits = vals)
     else:
         repo = ses.query(Repo).all()
-        return render_template('home.html', repo = repo, stat = stat)
+        perfdetail = perf.report()
+        return render_template('home.html', repo = repo, stat = stat, perf = perfdetail)
 
 
 @app.route('/admin')
@@ -222,7 +239,7 @@ def requestPkg(email):
     try:
         gonullu_id = ses.query(Gonullu).filter(Gonullu.email == email).one().id
     except:
-        cevap = {'durum': 'mail yok', 'mesaj': "ilkermanap@gmail.com adresine mektup atarak gonullu olmak istediginizi belirtin"}
+        cevap = {'state': states.MAILERR, 'durum': 'mail yok', 'mesaj': "ilkermanap@gmail.com adresine mektup atarak gonullu olmak istediginizi belirtin"}
         return jsonify(cevap)
     try:
         kuyruk = ses.query(Kuyruk).filter(Kuyruk.durum == 0 ).order_by(Kuyruk.id.asc()).first()
@@ -230,21 +247,28 @@ def requestPkg(email):
         k = k.filter(Kuyruk.id == kuyruk.id)
         kayit = k.one()
     except:
-        cevap = {'durum': 'paket yok', 'mesaj':'Daha fazla bekleyin'}
+        cevap = {'state': states.NOPACKAGE, 'message':'No package in queue', 'durum': 'paket yok', 'mesaj':'Daha fazla bekleyin'}
         return jsonify(cevap)
     kayit.durum = 100
     ses.flush()
     yeniGorev = Gorev(gonullu_id=gonullu_id, kuyruk_id = kuyruk.id)
     ses.add(yeniGorev)
     ses.flush()
+    docker_image = docker_image_name(kuyruk.repository, kuyruk.branch)
+    
     paketadi = ses.query(Paket).filter(Paket.id == kuyruk.paket_id).first().adi
     ses.commit()
     krn = False
     if paketadi in blacklist:
         krn = True
-    cevap = {'durum': 'ok','kuyruk_id': kuyruk.id, 'paket': paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_gerekli': krn}
-    print ">>>>> ", cevap
-    return jsonify(cevap)
+    if docker_image is not None:
+        cevap = {'state': states.OK, 'durum': 'ok','kuyruk_id': kuyruk.id, 'queue_id':kuyruk.id, 'paket': paketadi, 'package':paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_required':krn, 'kernel_gerekli': krn, 'dockerimage':docker_image }
+        print ">>>>> ", cevap
+        return jsonify(cevap)
+    else:
+        cevap = {'state': states.NODOCKERIMAGE, 'message' : 'No docker image set for repository %s  branch %s' % (kuyruk.repository, kuyruk.branch) }
+        return jsonify(cevap)
+
 
 
 @app.route('/parameter')
@@ -304,7 +328,7 @@ def gitcommit(fname):
             url = com['url']
             print com['timestamp'], len(com['modified'])
             for pkg in com['modified']:
-                print pkg
+                pkg = pkg.strip()
                 pkgid = paketID(pkg)
                 if pkgid == None:
                     ppp = Paket(adi=pkg, aciklama="%s icin aciklama eklenmeli" % pkg)

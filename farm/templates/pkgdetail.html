@@ -31,6 +31,56 @@
 <hr>
 
 <div>
+<h2> Degisiklikler / Commits</h2>
+<table border=1>
+<tr>
+   <th>id</th>
+   <th>Tarih</th>
+   <th>Repo</th>
+   <th>Branch</th>
+   <th>Paket</th>
+   <th>Commit</th>
+   <th>Durum</th>
+</tr>
+  {% for p   in commits %}
+<tr>
+  <td>{{ p.id       }}</td>
+  <td>{{ p.tarih       }}</td>
+  <td>{{ p.repository  }}</td>
+  <td>{{ p.branch      }}</td>
+  <td>{{ p.paket.adi   }}</td>
+  <td><a href = {{ p.commit_url }}>{{ p.commit_id   }}</a></td>
+  <td>
+
+    {% if p.durum  == 0 %}
+   Bekliyor.
+    {% endif %}
+    {% if p.durum  == 1 %}
+   Bir kismi bitti, bekliyor.
+    {% endif %}
+    {% if p.durum  == 100 %}
+   Calisiyor
+    {% endif %}
+    {% if p.durum  == 101 %}
+    <a target=new href= /ciftlik/compiledetail/{{ p.id }}> 
+   Basarisiz
+    </a>
+    {% endif %}
+    {% if p.durum  == 999 %}
+    <a target=new href= /ciftlik/compiledetail/{{ p.id }}> 
+   Basarili 
+    </a>
+    {% endif %}
+
+ </td>
+</tr>
+  {% endfor %}
+</table>
+
+
+</div>
+
+<div>
   <h2>{{ pkg.Source.Name }} paketi detayi</h2>
 <h3> Source </h3>
 <table>
