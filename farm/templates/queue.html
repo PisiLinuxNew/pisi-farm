@@ -3,36 +3,40 @@
 {% block top %}
 
   <h2>Kuyruk</h2>
-<a href="/ciftlik/queue/waiting"> Bekleyenler</a>
-<a href="/ciftlik/queue/failed"> Basarisizlar</a>
-<a href="/ciftlik/queue/running"> Su anda calisanlar</a>
-<a href="/ciftlik/queue/success"> Basarililar</a>
+
+<a href="/ciftlik/queue/waiting"><button class="btn btn-primary">Bekleyenler</button> </a>
+<a href="/ciftlik/queue/failed"><button class="btn btn-danger">Başarısızlar</button> </a>
+<a href="/ciftlik/queue/running"><button class="btn btn-info">Şu anda çalışanlar</button></a>
+<a href="/ciftlik/queue/success"><button class="btn btn-success">Başarılılar</button></a>
 <p>
 
 {% endblock %}
 
 {% block content %}
-<table border=1>
+<table class="table table-striped table-bordered">
+  <thead class="thead-dark">
 <tr>
-   <th>id</th>
-   <th>Tarih</th>
-   <th>Repo</th>
-   <th>Branch</th>
-   <th>Paket</th>
-   <th>Commit</th>
-   <th>Durum</th>
-   <th>Karsilanmamis Bagimliliklari</th>
-   <th>Islemler</th>
+   <th class="align-middle">id</th>
+   <th class="align-middle">Tarih</th>
+   <th class="align-middle">Repo</th>
+   <th class="align-middle">Branch</th>
+   <th class="align-middle">Paket</th>
+   <th class="align-middle">Commit</th>
+   <th class="align-middle">Durum</th>
+   <th class="align-middle">Karsilanmamis Bagimliliklari</th>
+   <th class="align-middle">Islemler</th>
 </tr>
+</thead>
+<tbody>
   {% for p   in packages %}
 <tr>
-  <td>{{ p.id       }}</td>
-  <td>{{ p.tarih       }}</td>
-  <td>{{ p.repository  }}</td>
-  <td>{{ p.branch      }}</td>
-  <td>{{ p.paket.adi   }}</td>
-  <td><a href = {{ p.commit_url }}>{{ p.commit_id   }}</a></td>
-  <td>
+  <td class="align-middle" style="font-size: 12px;">{{ p.id       }}</td>
+  <td class="align-middle" style="font-size: 12px;width: 100px;text-align: center;">{{ p.tarih.strftime("%d-%m-%Y %H:%M") }}</td>
+  <td class="align-middle" style="font-size: 12px;">{{ p.repository  }}</td>
+  <td class="align-middle" style="font-size: 12px;">{{ p.branch      }}</td>
+  <td class="align-middle" style="font-size: 12px;">{{ p.paket.adi   }}</td>
+  <td class="align-middle" style="font-size: 12px;"><a href = {{ p.commit_url }} target="_blank">{{ p.commit_id   }}</a></td>
+  <td class="align-middle" style="font-size: 12px; text-align: center;">
 
     {% if p.durum  == 0 %}
    Bekliyor.
@@ -41,37 +45,40 @@
    Bir kismi bitti, bekliyor.
     {% endif %}
     {% if p.durum  == 100 %}
-   Calisiyor
+    <i class="material-icons" title="Çalışıyor">watch_later</i>
+   
     {% endif %}
     {% if p.durum  == 101 %}
-    <a target=new href= /ciftlik/compiledetail/{{ p.id }}> 
-   Basarisiz
+    <a target="_blank" href= /ciftlik/compiledetail/{{ p.id }}> 
+      <i class="material-icons" title="Başarısız">warning</i>
+   <!--  Basarisiz -->
     </a>
     {% endif %}
     {% if p.durum  == 999 %}
-    <a target=new href= /ciftlik/compiledetail/{{ p.id }}> 
-   Basarili 
+    <a target="_blank" href= /ciftlik/compiledetail/{{ p.id }}> 
+   <i class="material-icons" title="Başarılı">done</i><!-- Basarili  -->
     </a>
     {% endif %}
 
  </td>
- <td>
+ <td class="align-middle" style="font-size: 12px;">
   {% if p.paket.adi in build_deps.keys() %}
    {% for k,v in build_deps[p.paket.adi].items()  %}
     {% if v == False %}
-	<font color="red">  {{ k }} </font>
+	<p class="uyari">  {{ k }} </p>
     {% endif %}
    {% endfor %}
   {% endif %}
   </td>
 
-  <td>
-    <a href=/ciftlik/queue/return/{{ p.id }} > <img title="Geri al" alt="Kuyruga geri al" src="{{ url_for('static', filename='image/geri.png') }}" ></a>
-    <a href=/ciftlik/queue/delet/{{ p.id }} > <img title="Sil" alt="Kuyruktan sil" src="{{ url_for('static', filename='image/cop.png') }}" ></a>
+  <td class="align-middle">
+    <a href=/ciftlik/queue/return/{{ p.id }} ><i class="material-icons" data-toggle="tooltip" data-placement="top" title="Kuyruga geri al" alt="Kuyruga geri al">autorenew</i></a>
+    <a href=/ciftlik/queue/delet/{{ p.id }} ><i class="material-icons" data-toggle="tooltip" data-placement="top" title="Kuyruktan sil" alt="Kuyruktan sil">delete_forever</i></a>
   </td>
 
 </tr>
 
   {% endfor %}
+  </tbody>
 </table>
 {% endblock %}
