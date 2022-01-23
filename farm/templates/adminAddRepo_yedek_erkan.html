@@ -46,4 +46,32 @@
 
 
 
+    <div class="jumbo">
+        
+        <h3>Repo Ekleme<h3>
+        <form action="/ciftlik/admin/addrepo" method=post>
+
+
+            {{ form.repo.label }}
+            {{ form.repo }} <br>
+
+            {{ form.branch.label }}
+            {{ form.branch }} <br>
+
+            {{ form.repourl.label }}
+            {{ form.repourl }} <br>
+
+            {{ form.dockerimage.label }}
+            {{ form.dockerimage }} <br>
+
+            {{ form.repodir.label }}
+            {{ form.repodir }} <br>
+
+            {{ form.enable.label }}
+            {{ form.enable }} <br>
+
+            {{ form.submit }}
+        </form>
+  </div>
+
 {% endblock %}

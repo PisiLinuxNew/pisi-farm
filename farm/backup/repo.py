@@ -2,23 +2,18 @@ __author__ = 'ilker'
 
 from lxml import objectify 
 from model import *
-import urllib
-import requests
-import os
-from ver import Version
-
+import urllib2, os
 
 REPOS = {'0':{'repo' : 'pisilinux/core',
           'branch' : 'master',
-          'dockerimage' : 'pisilinux/chroot',
-          #'dockerimage' : 'safaariman/pisi-chroot',
+          'dockerimage' : 'ertugerata/pisi-chroot-farm',
           'repo_dir' : '/var/www/html/pisilinux-core',
           'upload' : "/var/www/html/pisi-upload/",
           'repo_url' : 'https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz' }}
 
 TEST="test"
 
-REPOBASE = "/var/www/vhosts/pisilinux.org/ciftlik/testrepo"
+REPOBASE = "/var/www/testrepo"
 
 class RepoBase:
     def __init__(self, repo =  "reponame", repourl = None, init = False):
@@ -39,12 +34,10 @@ class RepoBase:
         """
         Repo hash degerini internette olan ile kontrol ederek, yenisi cikmis ise repoyu yeniler.
         """
-        #import urllib2
+        import urllib2
         repofile = self.repourl.split("/")[-1]
         if os.path.exists("%s/%s.sha1sum" % (self.repodir, repofile)):
-            print self.repourl
-            yeniHash = requests.get("%s.sha1sum" % self.repourl).text 
-            print yeniHash
+            yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
             eskiHash = open("%s/%s.sha1sum" % (self.repodir, repofile)).readlines()[0]
             if yeniHash.strip() != eskiHash.strip():
                 self.retrieve()
@@ -55,11 +48,8 @@ class RepoBase:
                 if not (os.path.exists("%s/%s" % (self.repodir, repofile))):
                     self.retrieve()
         else:
-            #yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
-            #22-07-2021 erkan isik tarafindan eklendi
-            yeniHash = urllib.urlopen("%s.sha1sum" % self.repourl).readlines()[0] 
+            yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
             self.retrieve()
-            print "in repo, repodir = ", self.repodir
             f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w")
             f.write(yeniHash)
             f.close()
@@ -102,7 +92,6 @@ class RepoView(RepoBase):
     def __init__(self, r, init = False, binrepo = None):
         RepoBase.__init__(self, repo = r.repo, repourl = r.repourl )
         self.binary_repo = binrepo
-        self.binary_repo_dir = r.binrepopath
         self.id = r.id
         self.repo = r.repo
         self.branch = r.branch
@@ -127,16 +116,21 @@ class RepoView(RepoBase):
             v1 = v2 ise 0
             v1 < v2 ise -1 
             """
-
-            ver1 = Version(v1)
-            ver2 = Version(v2)
             if v1 == v2:
                 return 0
             else:
-                if ver1 > ver2:
+                v1p = v1.split(".")
+                v2p = v2.split(".")
+                n1 = len(v1p)
+                if n1 > len(v2p):
+                    n1 = len(v2p)
+                for i in range(n1):
+                    if int(v1p[i]) > int(v2p[i]):
+                        return 1
+                    elif int(v1p[i]) < int(v2p[i]):
+                        return -1
+                if len(v1p) > len(v2p):
                     return 1
-                if ver1 < ver2:
-                    return -1
 
         temp = {}
         vers = None
@@ -234,16 +228,18 @@ class RepoView(RepoBase):
         RepoBase.init(self)
         self.xmlOku()
 
-pisi20repo = RepoBinary("pisi-2.0-test", "https://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz")
+pisi20repo = RepoBinary("pisi-2.0-test", "http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz")
 
 repos = {}
 rp = ses.query(Repo).all()
 for r in rp:
-    repos[r.id] = RepoView(r, True, RepoBinary("deneme", r.binrepo))
+    repos[r.id] = RepoView(r, True, pisi20repo)
 
 
 
 
 if __name__ == "__main__":
-    for r in rp:
-        print r.binrepopath
+    for rid, r in  repos.items():
+        for k,v in r.paketler.items():
+            print k,  r.pkgDesc(v)
+

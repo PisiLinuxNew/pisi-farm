@@ -9,8 +9,7 @@ SECRET_KEY = 'you-will-never-guess'
 
 REPOS = {'0':{'repo' : 'pisilinux/core',
           'branch' : 'master',
-          'dockerimage' : 'pisilinux/chroot',
-          #'dockerimage' : 'safaariman/pisi-chroot',
+          'dockerimage' : 'ertugerata/pisi-chroot-farm',
           'repo_dir' : '/var/www/html/pisilinux-core',
           'upload' : "/var/www/html/pisi-upload/",
           'repo_url' : 'https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz' }}

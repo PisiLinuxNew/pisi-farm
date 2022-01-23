@@ -1,0 +1,267 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="jumbo">
+    <h2>Pisi Dagitik Derleme Ciftligi<h2>
+    <h3> {{ repo[0].repo }}<h3>
+  </div>
+
+   {% for r in repo %}
+        <a href="/ciftlik/repo/{{ r.id }}">{{ r.repo }}:{{ r.branch }}</a>
+        docker image: {{ r.dockerimage }}  
+        {% for s in  stat %}
+            {% if (r.repo == s.repository) and (r.branch == s.branch) %}
+                {% if s.durum == 0 %}
+                    Derlemeyi bekleyen : {{ s.sayi }}
+                {% endif %}
+                {% if s.durum == 100 %}
+                    Su anda derlenen : {{ s.sayi }} 
+                {% endif %}
+                {% if s.durum == 101 %}
+                    Basarisiz : {{ s.sayi }} 
+                {% endif %}
+
+                {% if s.durum == 999 %}
+                    Basarili bitmis : {{ s.sayi }} <br>
+                {% endif %}
+
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
+<hr>
+
+<div>
+<h2> Degisiklikler / Commits</h2>
+<table border=1>
+<tr>
+   <th>id</th>
+   <th>Tarih</th>
+   <th>Repo</th>
+   <th>Branch</th>
+   <th>Paket</th>
+   <th>Commit</th>
+   <th>Durum</th>
+</tr>
+  {% for p   in commits %}
+<tr>
+  <td>{{ p.id       }}</td>
+  <td>{{ p.tarih       }}</td>
+  <td>{{ p.repository  }}</td>
+  <td>{{ p.branch      }}</td>
+  <td>{{ p.paket.adi   }}</td>
+  <td><a href = {{ p.commit_url }}>{{ p.commit_id   }}</a></td>
+  <td>
+
+    {% if p.durum  == 0 %}
+   Bekliyor.
+    {% endif %}
+    {% if p.durum  == 1 %}
+   Bir kismi bitti, bekliyor.
+    {% endif %}
+    {% if p.durum  == 100 %}
+   Calisiyor
+    {% endif %}
+    {% if p.durum  == 101 %}
+    <a target=new href= /ciftlik/compiledetail/{{ p.id }}> 
+   Basarisiz
+    </a>
+    {% endif %}
+    {% if p.durum  == 999 %}
+    <a target=new href= /ciftlik/compiledetail/{{ p.id }}> 
+   Basarili 
+    </a>
+    {% endif %}
+
+ </td>
+</tr>
+  {% endfor %}
+</table>
+
+
+</div>
+
+<div>
+  <h2>{{ pkg.Source.Name }} paketi detayi</h2>
+<h3> Source </h3>
+<table>
+  <tr>  
+    <th> Name</th>
+    <td> {{ pkg.Source.Name }} </td> 
+  </tr>
+  <tr>  
+    <th> Homepage</th>
+    <td><a href={{ pkg.Source.Homepage }}>{{ pkg.Source.Homepage }}</a> </td> 
+  </tr>
+  <tr>  
+    <th> Packager</th>
+    <td> {{ pkg.Source.Packager.Name}} </td> 
+  </tr>
+  <tr>  
+    <th> Type</th>
+    <td> {{ pkg.Source.IsA }} </td> 
+  </tr>
+  <tr>  
+    <th> License</th>
+    <td> {{ pkg.Source.License }} </td> 
+  </tr>
+  <tr>  
+    <th> Part Of</th>
+    <td> {{ pkg.Source.PartOf }} </td> 
+  </tr>
+  <tr>  
+    <th> Summary</th>
+    <td> {{ pkg.Source.Summary }} </td> 
+  </tr>
+  {% for t in pkg.Source.iterchildren() %}
+     {% if t.tag == "Description" %}
+        <tr>  
+	  <th> Description [{{ t.attrib.values()[0] }}] </th>
+	  <td> {{ t }} </td> 
+	</tr>  
+     {% endif %}
+  {% endfor %}
+
+  <tr>  
+    <th> Archive </th>
+    <td> Type:{{ pkg.Source.Archive.attrib["type"] }} Hash:{{ pkg.Source.Archive.attrib["sha1sum"] }}</td> 
+  </tr>
+  <tr>  
+    <th> Archive Url</th>
+    <td><a href={{ pkg.Source.Archive }}>{{ pkg.Source.Archive }}</a> </td> 
+  </tr>
+
+  {% if pkg.Source.find("BuildDependencies") %}
+    <tr>  
+      <th> Build Dependencies</th>
+      <td> {% for dep in pkg.Source.BuildDependencies.iterchildren() %}
+            {{ dep }} <br>
+           {% endfor %}
+      </td> 
+    </tr>
+  {% endif %}
+
+  {% if  pkg.Source.find("RuntimeDependencies") %}
+   <tr>  
+     <th> Runtime Dependencies</th>
+     <td>
+        {% for dep in pkg.Source.RuntimeDependencies.iterchildren() %}
+           {{ dep }} <br>
+        {% endfor %}
+     </td>
+   </tr>
+  {% endif %}
+
+  {% if  pkg.Source.find("Patches") %}
+    <tr>  
+      <th> Patches</th>
+      <td>
+	{% for patch in pkg.Source.Patches.iterchildren() %}
+          {{ patch  }} <br>
+	{% endfor %}
+      </td>
+    </tr>
+  {% endif %}
+
+  {% if  pkg.Source.find("SourceURI") %}
+    <tr>  
+      <th> pspec.xml URI</th> 
+      
+      <td> <a href={{ repo[0].repourl.replace("pisi-index.xml.xz","") }}{{ pkg.Source.SourceURI }}> {{ pkg.Source.SourceURI }} </a></td> 
+    </tr>
+  {% endif %}
+</table>
+
+
+
+
+{% for p in pkg.iterchildren() %}
+
+  {% if p.tag == "Package" %}  
+
+  <h3> Package {{ p.Name }}</h3>
+  <table>
+     <tr> <th> Name</th> <td> {{ p.Name }}</td></tr>
+       {% if p.find("BuildDependencies") %} 
+       <tr>  <th> Build Dependencies</th>
+         <td>
+            {% for dep in p.BuildDependencies.iterchildren() %} 
+	       {{ dep }} <br>
+	    {% endfor %}
+	 </td>
+       </tr>
+       {% endif %}
+
+       {% if  p.find("RuntimeDependencies") %}
+          <tr>  
+	    <th> Runtime Dependencies</th>
+	    <td>{% for dep in p.RuntimeDependencies.iterchildren() %}
+	        {{ dep }} <br>
+	      {% endfor %}
+	    </td>
+	  </tr>
+       {% endif %}
+
+       {% if  p.find("Patches") %}
+          <tr> <th> Patches</th>
+	    <td>
+	      {% for patch in p.Patches.iterchildren() %}
+     	        {{ patch  }} <br>
+	      {% endfor %}
+	    </td>
+	  </tr>
+       {% endif %}
+
+       {% if  p.find("Files") %}
+          <tr>  
+	    <th> File Types</th>
+	    <td>
+	      {% for f in p.Files.iterchildren() %}
+	      {{ f.attrib["fileType"] }} : {{ f  }} <br>
+	      {% endfor %}
+	    </td>
+	  </tr>
+       {% endif %}
+
+       {% if  p.find("AdditionalFiles") %}
+	  {% for f in p.AdditionalFiles.iterchildren() %}
+          <tr>  
+	    <th> Additional File</th>
+	    <td>
+   	         File : {{ f }} <br>
+	          {% for attr, val in f.attrib.items() %}
+                    {{ attr }} : {{ val }} <br>
+	          {% endfor %}
+	    </td>
+
+	  </tr>
+	  {% endfor %}
+      {% endif %}
+
+  </table>
+  {% endif %}
+
+  {% if p.tag == "History" %}
+
+    <h3> History </h3>
+
+    <table>
+      <tr><th>Release</th><th>Date</th><th>Version</th><th>Comment</th><th>Packager</th></tr>
+      {% for  u in p.iterchildren() %}
+      <tr>
+        <td> {{ u.attrib["release"] }}  </td>
+	<td> {{ u.Date }}  </td>
+	<td> {{ u.Version }}  </td>
+	<td> {{ u.Comment }}  </td>
+	<td> {{ u.Name }}  </td>
+      </tr>
+      {% endfor %}
+    </table>
+
+   {% endif %}
+{% endfor %}
+</td>
+</tr>
+</table>
+</div>
+{% endblock %}
+

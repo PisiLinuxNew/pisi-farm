@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+<br>
+<div class="card">
+  <div class="card-header">
+   Çiftlik yeni kullanıcı ekleme formu
+  </div>
+  <div class="card-body">
+    <form action="" method="POST">
+	    <div class="form-group">
+    <label>Kullanıcının Adı Soyadı</label>
+    <input type="text"  class="form-control" id="" name="name" value="">   
+  </div>
+    
+  <div class="form-group">
+    <label>Kullacının email adresi</label>
+    <input type="mail"  class="form-control" id="" name="email" value="">   
+  </div>
+  
+	<div class="form-group">
+    <label>Kullanıcının Şifresi</label>
+    <input type="text"  class="form-control" id="" name="password" value="">   
+  </div>
+  <button type="submit" class="btn btn-dark btn-block">KULLANICIYI 
+KAYDET</button>
+  
+ 
+</form>
+  </div>
+</div>
+
+
+{% endblock %} 

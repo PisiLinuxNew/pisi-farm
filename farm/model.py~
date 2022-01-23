@@ -13,7 +13,7 @@ Base = declarative_base()
 """
 REPOS = {'0':{'repo' : 'pisilinux/core',
           'branch' : 'master',
-          'dockerimage' : 'safaariman/pisi-chroot',
+          'dockerimage' : 'ertugerata/pisi-chroot-farm',
           'repo_dir' : '/var/www/html/pisilinux-core',
           'upload' : "/var/www/html/pisi-upload/",
           'repo_url' : 'https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz' }}
@@ -29,7 +29,6 @@ class Repo(Base):
     repodir = Column(String(200))
     enable = Column(Boolean)
     binrepo = Column(String(150))
-    binrepopath = Column(String(150))
 
 class Paket(Base):
     __tablename__ = "paket"
@@ -79,7 +78,7 @@ class Gorev(Base):
     kuyruk = relationship('Kuyruk')
 
 #engine = create_engine('sqlite:////tmp/farm.db')
-engine = create_engine('postgresql://postgres:pisi2017@localhost/pisi')
+engine = create_engine('postgresql://postgres:system@localhost/pisi')
 session = sessionmaker()
 session.configure(bind=engine)
 ses = session()

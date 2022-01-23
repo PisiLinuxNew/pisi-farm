@@ -1,15 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
-  <strong><nav>
-	    <ul class="menu">
-              <li><a href="{{ url_for('admin') }}">Admin Ana sayfa</a></li>
-              <li><a href="{{ url_for('adminAddRepo') }}">Repo Ekle</a></li>
-	    </ul>
- 	</nav></strong>
-
+  
   <div class="jumbo">
-    <h2>Pisi Dagitik Derleme Ciftligi<h2>
-    <h3>Yonetim Bolumu<h3>
+   
     <h4> Repolar</h4>
 
     {% for r in repo %}
