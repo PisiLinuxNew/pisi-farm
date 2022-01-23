@@ -171,7 +171,7 @@ class Push:
                 self.commits[temp.id] = temp
 
     def pprint(self):
-        print json.dumps(self.data, indent = 4)
+        print(json.dumps(self.data, indent = 4))
 
     def html(self):
         commits = "Tarih : %s   Branch : %s <table border=1>" % (self.fname, self.ref)
