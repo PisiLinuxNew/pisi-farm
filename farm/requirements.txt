@@ -4,3 +4,10 @@ flask-wtf
 flask-sqlalchemy
 psycopg2-binary
 lxml
+flask-migrate
+flask-login
+flask-mail
+pyjwt
+flask-bootstrap
+flask-babel
+email-validator

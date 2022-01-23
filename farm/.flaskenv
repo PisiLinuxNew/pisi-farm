@@ -1,0 +1,1 @@
+FLASK_APP=farmv2.py
