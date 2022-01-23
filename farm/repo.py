@@ -42,9 +42,9 @@ class RepoBase:
         #import urllib2
         repofile = self.repourl.split("/")[-1]
         if os.path.exists("%s/%s.sha1sum" % (self.repodir, repofile)):
-            print self.repourl
+            print(self.repourl)
             yeniHash = requests.get("%s.sha1sum" % self.repourl).text 
-            print yeniHash
+            print(yeniHash)
             eskiHash = open("%s/%s.sha1sum" % (self.repodir, repofile)).readlines()[0]
             if yeniHash.strip() != eskiHash.strip():
                 self.retrieve()
@@ -59,7 +59,7 @@ class RepoBase:
             #22-07-2021 erkan isik tarafindan eklendi
             yeniHash = urllib.urlopen("%s.sha1sum" % self.repourl).readlines()[0] 
             self.retrieve()
-            print "in repo, repodir = ", self.repodir
+            print("in repo, repodir = ", self.repodir)
             f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w")
             f.write(yeniHash)
             f.close()
@@ -117,7 +117,7 @@ class RepoView(RepoBase):
             self.init()
         else:
             self.xmlOku()
-        print self.id, self.repo, self.branch, self.dockerimage, self.repodir, self.repourl, self.enable
+        print(self.id, self.repo, self.branch, self.dockerimage, self.repodir, self.repourl, self.enable)
 
     def depcheck(self, pname):
         def vercheck(v1, v2):
@@ -246,4 +246,4 @@ for r in rp:
 
 if __name__ == "__main__":
     for r in rp:
-        print r.binrepopath
+        print(r.binrepopath)

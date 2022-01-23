@@ -81,7 +81,7 @@ class Commit:
                     if len(a) > 2 :
                         pkgName = l.split("/")[-3]
                         if pkgName not in self.modifiedPackages:
-                            print "added filename in removed ", pkgName
+                            print("added filename in removed ", pkgName)
                             self.modifiedPackages.append(pkgName)
 
 
@@ -117,13 +117,11 @@ class Commit:
                         pkgName = l.split("/")[-2]
                     if pkgName not in self.modifiedPackages:
                         self.modifiedPackages.append(pkgName)
-        #print " eklenecekler :", self.modifiedPackages
-
 
     def report(self):
-        print self.id
+        print(self.id)
         for l in self.modified:
-            print "    ",l
+            print("    ",l)
 
     def db(self):
         if len(self.modifiedPackages) > 0:

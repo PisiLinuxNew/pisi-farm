@@ -164,22 +164,22 @@ class Docker:
 
     def run(self, extra_params=""):
         prm = "sudo docker run -id  %s " % (self.params.param_str(extra_params, self.image))
-        print prm
+        print(prm)
         return prm
 
     def start(self):
         if self.check() != 0:
-            print "Starting docker"
+            print("Starting docker")
             #cmd1 = "sudo cgroupfs-mount"
             cmd2 = "docker -d &"
             #print "Mounting cgroupfs"
             #stat1 = os.system(cmd1)
-            print "Starting docker daemon"
+            print("Starting docker daemon")
             stat2 = os.system(cmd2)
             if stat2 == 0:
                 return True
         else:
-            print "Docker already started"
+            print("Docker already started")
             return True
         return False
 
@@ -246,7 +246,7 @@ class Gelistirici(Paketci):
                 cmd = "updaterunning?id=%s&state=%s" % (self.kuyruk_id, basari)
                 self.farm.get(cmd)
                 return
-            print "hala calisiyor"
+            print("hala calisiyor")
 
 
 class Gonullu(Paketci):
@@ -279,7 +279,7 @@ class Gonullu(Paketci):
         print liste
         self.farm.dosyalari_gonder(liste, self.repo, self.branch)
         if self.docker.rm("%s-sil" % self.paket) != 0:
-            print "imaj silinemedi ", self.paket
+            print("imaj silinemedi ", self.paket)
         tmptemizle = "rm -rf /tmp/%s" % self.paket
         os.system(tmptemizle)
 
@@ -298,7 +298,7 @@ class Gonullu(Paketci):
                 cmd = "updaterunning?id=%s&state=%s" % (self.kuyruk_id, basari)
                 self.farm.get(cmd)
                 return
-            print "hala calisiyor"
+            print("hala calisiyor")
 
 
 class Farm:
@@ -337,8 +337,8 @@ class Farm:
         f = {'file': open("%s%s" % (fname, ek) , 'rb')}
         r = requests.post("%s/%s" % (self.url, cmd), files=f)
         hashx = os.popen("sha1sum %s%s" % (fname, ek), "r").readlines()[0].split()[0].strip()
-        print ">> uzak hash   : %s"  % r.text.strip()
-        print ">> yakin hash  : %s"  % hashx
+        print(">> uzak hash   : %s"  % r.text.strip())
+        print(">> yakin hash  : %s"  % hashx)
 
         if hashx == r.text.strip():
             return True
@@ -347,12 +347,12 @@ class Farm:
 
     def dosyalari_gonder(self, liste, repo, branch):
         for f in liste:
-            print "dosya gonderiliyor, ", f
+            print("dosya gonderiliyor, ", f)
             if self.dosya_gonder(f, repo, branch):
-                print f, " gonderildi"
+                print(f, " gonderildi")
             else:
                 while not(self.dosya_gonder(f, repo, branch)):
-                    print f, " deniyoruz"
+                    print(f, " deniyoruz")
                     time.sleep(5)
 
 
@@ -366,7 +366,7 @@ if __name__ == "__main__":
     while 1:
         g = Gonullu(f, d)
         for i in range(10):
-            print "Kalan %d sn. Durdurmak icin simdi ctrl-c ile kesebilirsiniz.." % ((10 - i) * 3)
+            print("Kalan %d sn. Durdurmak icin simdi ctrl-c ile kesebilirsiniz.." % ((10 - i) * 3))
             time.sleep(3)
 
 """

@@ -159,7 +159,7 @@ def queue(qtype = "all"):
                     if p.paket.adi in repo.paketler.keys():
                         deplist[p.paket.adi] = repo.depcheck(p.paket.adi)
                 except:
-                    print "sorunlu paket ", p.paket.adi
+                    print("sorunlu paket ", p.paket.adi)
                     tb.print_exc()
                     pass
         return deplist
@@ -309,7 +309,7 @@ def requestPkg(email):
         krn = True
     if docker_image is not None:
         cevap = {'state': states.OK, 'durum': 'ok','kuyruk_id': kuyruk.id, 'queue_id':kuyruk.id, 'paket': paketadi, 'package':paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_required':krn, 'kernel_gerekli': krn, 'dockerimage':docker_image , 'binary_repo_dir':repobinary}
-        print ">>>>> ", cevap
+        print(">>>>> ", cevap)
         return jsonify(cevap)
     else:
         cevap = {'state': states.NODOCKERIMAGE, 'message' : 'No docker image set for repository %s  branch %s' % (kuyruk.repository, kuyruk.branch) }
@@ -369,10 +369,10 @@ def gitcommit(fname):
         tar = tar.replace("Z","").replace("T"," ")
         t = datetime.strptime(tar,"%Y-%m-%d %H:%M:%S")
         for _id, com in p.db2().items():
-            print "gitcommit, com.modified :",com['modified']
+            print( "gitcommit, com.modified :",com['modified'])
             id = com['id']
             url = com['url']
-            print com['timestamp'], len(com['modified'])
+            print(com['timestamp'], len(com['modified']))
             for pkg in com['modified']:
                 pkg = pkg.strip()
                 pkgid = paketID(pkg)
@@ -399,7 +399,7 @@ def gitcommit(fname):
                     ses.commit() 
                     ses.flush()
                 else:
-                    print pkg, "  sorun var"
+                    print(pkg, "  sorun var")
         return p.ref
     return p.ref
 
@@ -410,7 +410,7 @@ def upload():
     if request.method == 'POST':
         file = request.files['file']
         repo_bin_path = request.form['binrepopath']
-        print "repo_bin_path = ", repo_bin_path
+        print("repo_bin_path = ", repo_bin_path)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filename_kalan = filename[filename.find("-")+1:]
@@ -426,7 +426,7 @@ def upload():
                 pre = pa[0]
             pkgdir = "%s/%s/%s-%s/" % (pre, pa, kuyruk_id ,k.commit_id)
             p = "%s/%s/%s/%s" % (REPOBASE, k.repository, k.branch, pkgdir)
-            print "olusturulacak dizin : ", p
+            print("olusturulacak dizin : ", p)
             os.system("mkdir -p %s" % p)
             f = os.path.join(p, gercek_isim)
             file.save(f)
