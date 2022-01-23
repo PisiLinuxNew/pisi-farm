@@ -1,4 +1,3 @@
-import urllib2
 import os
 import json
 import glob
@@ -275,7 +274,7 @@ class Gonullu(Paketci):
 
     def gonder(self):
         liste = glob.glob("/tmp/%s/*.[lpe]*" % self.paket)
-        print liste
+        print(liste)
         self.farm.dosyalari_gonder(liste, self.repo, self.branch)
         if self.docker.rm("%s-sil" % self.paket) != 0:
             print("imaj silinemedi ", self.paket)
@@ -306,7 +305,7 @@ class Farm:
         self.params = self.parametre()
 
     def get(self, cmd):
-        return urllib2.urlopen("%s/%s" % (self.url, cmd)).read()
+        return requests.get("%s/%s" % (self.url, cmd)).text
 
     def kuyruktan_paket_al(self, email):
         cmd = "requestPkg/%s" % email
