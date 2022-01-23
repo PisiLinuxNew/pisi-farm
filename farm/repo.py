@@ -2,7 +2,6 @@ __author__ = 'ilker'
 
 from lxml import objectify 
 from model import *
-import urllib
 import requests
 import os
 from ver import Version
@@ -39,7 +38,6 @@ class RepoBase:
         """
         Repo hash degerini internette olan ile kontrol ederek, yenisi cikmis ise repoyu yeniler.
         """
-        #import urllib2
         repofile = self.repourl.split("/")[-1]
         if os.path.exists("%s/%s.sha1sum" % (self.repodir, repofile)):
             print(self.repourl)
@@ -57,7 +55,7 @@ class RepoBase:
         else:
             #yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
             #22-07-2021 erkan isik tarafindan eklendi
-            yeniHash = urllib.urlopen("%s.sha1sum" % self.repourl).readlines()[0] 
+            yeniHash = requests.get("%s.sha1sum" % self.repourl).text
             self.retrieve()
             print("in repo, repodir = ", self.repodir)
             f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w")
