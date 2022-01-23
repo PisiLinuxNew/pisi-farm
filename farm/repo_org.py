@@ -11,7 +11,7 @@ from ver import Version
 REPOS = {'0':{'repo' : 'pisilinux/core',
           'branch' : 'master',
           'dockerimage' : 'pisilinux/chroot',
-          #'dockerimage' : 'safaariman/pisi-chroot',
+         #'dockerimage' : 'ertugerata/pisi-chroot-farm',
           'repo_dir' : '/var/www/html/pisilinux-core',
           'upload' : "/var/www/html/pisi-upload/",
           'repo_url' : 'https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz' }}
@@ -55,9 +55,7 @@ class RepoBase:
                 if not (os.path.exists("%s/%s" % (self.repodir, repofile))):
                     self.retrieve()
         else:
-            #yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
-            #22-07-2021 erkan isik tarafindan eklendi
-            yeniHash = urllib.urlopen("%s.sha1sum" % self.repourl).readlines()[0] 
+            yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
             self.retrieve()
             print "in repo, repodir = ", self.repodir
             f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w")

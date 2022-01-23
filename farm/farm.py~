@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session, escape
+from flask import Flask, request, render_template, jsonify, redirect, url_for
 from flask_wtf import Form
 from wtforms import StringField, SubmitField, BooleanField
 from model import *
@@ -12,9 +12,6 @@ from repo import repos, REPOBASE, pisi20repo, RepoBinary, RepoView
 from werkzeug import secure_filename
 from indexer import  DockerIndexer
 from performance import *
-import traceback as tb
-import os
-
 
 
 perf = Performance()
@@ -37,7 +34,6 @@ def serialize(model):
 app = Flask(__name__)
 app.config.from_object('config')
 app.config["PROPAGATE_EXCEPTIONS"]  = True
-app.secret_key = 'YSFeWkWKPdKhUHofYb6c'
 
 class RepoForm(Form):
     repo = StringField('repo')
@@ -117,25 +113,10 @@ def binpackage(name):
         else:
             return  "%s False" % name
 
+
 @app.route('/about')
 def about():
-    return render_template('about.html')
-    
-@app.route("/findlistcore")
-def findlistcore():
-    #import os
-    os.system("python findpackagescore.py")
-    txtread = open('findcore.txt')
-    data = txtread.read()
-    return render_template("findlist.html", veri = data)
-
-@app.route("/findlistmain")
-def findlistmain():
-    #import os
-    os.system("python findpackagesmain.py")
-    txtread = open('findmain.txt')
-    data = txtread.read()
-    return render_template("findlist.html", veri = data)
+    return render_template('home.html')
 
 
 @app.route('/sources')
@@ -159,8 +140,6 @@ def queue(qtype = "all"):
                     if p.paket.adi in repo.paketler.keys():
                         deplist[p.paket.adi] = repo.depcheck(p.paket.adi)
                 except:
-                    print "sorunlu paket ", p.paket.adi
-                    tb.print_exc()
                     pass
         return deplist
     deps = {}
@@ -178,7 +157,7 @@ def queue(qtype = "all"):
                 durumlar.append(0)
             if durum == "partial":
                 durumlar.append(1)
-            if durum == "waitingdep": 
+            if durum == "waitingdep":
                 durumlar.append(2)
             if durum == "running":
                 durumlar.append(100)
@@ -212,12 +191,7 @@ def queue_delete(id):
     rec = q.one()
     rec.durum = 5000
     ses.flush() 
-    return "<html><script> window.history.back(); location.reload();</script></html>"
-    #return "<html><script>window.location = 'https://ciftlik.pisilinux.org/ciftlik/queue/running'</script></html>"
-
-@app.route('/login')
-def login():
-	return render_template('giris.html')
+    return "<html><script> window.history.back(); </script></html>"
 
 @app.route('/')
 @app.route('/repo/<int:id>')
@@ -244,8 +218,6 @@ def home(id = -1, pkgname = ""):
             pass
 
         perfdetail = perf.report()
-
-   
         return render_template('home.html', repo = repo, stat = stat, perf = perfdetail) 
 
 @app.route('/admin')
@@ -270,10 +242,6 @@ def adminAddRepo():
             return "kaydedildi"
         else:
             return "zaten varmis %d " % sayi
-		
-@app.route('/adduser')
-def adduser():
-	return render_template('admin_adduser.html')
 
 
 @app.route('/requestPkg/<string:email>')
@@ -445,7 +413,6 @@ def compiledetail(id):
     else:
         ilk = paket[0]
     return render_template("compiledetail.html", paket=paket, kuyruk = k, ilk=ilk)
-
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)

@@ -13,8 +13,7 @@
 {% endblock %}
 
 {% block content %}
-
-<table class="table table-striped table-bordered" id="myTable">
+<table class="table table-striped table-bordered">
   <thead class="thead-dark">
 <tr>
    <th class="align-middle">id</th>
@@ -31,13 +30,13 @@
 <tbody>
   {% for p   in packages %}
 <tr>
-  <td class="align-middle border border-dark" style="font-size: 12px;">{{ p.id       }}</td>
-  <td class="align-middle border border-dark" style="font-size: 12px;width: 100px;text-align: center;">{{ p.tarih.strftime("%d-%m-%Y %H:%M") }}</td>
-  <td class="align-middle border border-dark" style="font-size: 12px;">{{ p.repository  }}</td>
-  <td class="align-middle border border-dark" style="font-size: 12px;">{{ p.branch      }}</td>
-  <td class="align-middle border border-dark" style="font-size: 12px;">{{ p.paket.adi   }}</td>
-  <td class="align-middle border border-dark" style="font-size: 12px;"><a href = {{ p.commit_url }} target="_blank">{{ p.commit_id   }}</a></td>
-  <td class="align-middle border border-dark" style="font-size: 12px; text-align: center;">
+  <td class="align-middle" style="font-size: 12px;">{{ p.id       }}</td>
+  <td class="align-middle" style="font-size: 12px;width: 100px;text-align: center;">{{ p.tarih.strftime("%d-%m-%Y %H:%M") }}</td>
+  <td class="align-middle" style="font-size: 12px;">{{ p.repository  }}</td>
+  <td class="align-middle" style="font-size: 12px;">{{ p.branch      }}</td>
+  <td class="align-middle" style="font-size: 12px;">{{ p.paket.adi   }}</td>
+  <td class="align-middle" style="font-size: 12px;"><a href = {{ p.commit_url }} target="_blank">{{ p.commit_id   }}</a></td>
+  <td class="align-middle" style="font-size: 12px; text-align: center;">
 
     {% if p.durum  == 0 %}
    Bekliyor.
@@ -62,19 +61,19 @@
     {% endif %}
 
  </td>
- <td class="align-middle border border-dark" style="font-size: 12px;">
+ <td class="align-middle" style="font-size: 12px;">
   {% if p.paket.adi in build_deps.keys() %}
    {% for k,v in build_deps[p.paket.adi].items()  %}
     {% if v == False %}
-	<p class="d-block bg-primary text-white" style="padding: 3px">  {{ k }} </p>
+	<p class="uyari">  {{ k }} </p>
     {% endif %}
    {% endfor %}
-  {% endif %} 
+  {% endif %}
   </td>
- 
-  <td class="align-middle border border-dark">
-    <a href=/ciftlik/queue/return2/{{ p.id }} ><i class="material-icons" data-toggle="tooltip" data-placement="top" title="Kuyruga geri al" alt="Kuyruga geri al">autorenew</i></a>
-    <a href=/ciftlik/queue/delete2/{{ p.id }} ><i class="material-icons" data-toggle="tooltip" data-placement="top" title="Kuyruktan sil" alt="Kuyruktan sil">delete_forever</i></a>
+
+  <td class="align-middle">
+    <a href=/ciftlik/queue/return/{{ p.id }} ><i class="material-icons" data-toggle="tooltip" data-placement="top" title="Kuyruga geri al" alt="Kuyruga geri al">autorenew</i></a>
+    <a href=/ciftlik/queue/delet/{{ p.id }} ><i class="material-icons" data-toggle="tooltip" data-placement="top" title="Kuyruktan sil" alt="Kuyruktan sil">delete_forever</i></a>
   </td>
 
 </tr>

@@ -1,0 +1,12 @@
+<html>
+<head>
+  <Title>{{ paket }} derleme sonucu - Pisi Linux</Title>
+</head>
+<frameset rows="25%, 75%">
+  <frame src=/testrepo/{{ kuyruk.repository  }}/{{ kuyruk.branch }}/{{ ilk }}/{{ paket }}/{{ kuyruk.id }}-{{ kuyruk.commit_id}}/>
+  <frameset cols="50%, 50%">
+    <frame src=/testrepo/{{ kuyruk.repository  }}/{{ kuyruk.branch }}/{{ ilk }}/{{ paket }}/{{ kuyruk.id }}-{{ kuyruk.commit_id}}/{{ paket }}.err.html>
+    <frame src=/testrepo/{{ kuyruk.repository  }}/{{ kuyruk.branch }}/{{ ilk }}/{{ paket }}/{{ kuyruk.id }}-{{ kuyruk.commit_id}}/{{ paket }}.log.html>
+  </frameset>
+</frameset>
+</html>

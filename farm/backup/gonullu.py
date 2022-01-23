@@ -14,7 +14,7 @@ def hazirlik(kernel_gerekli):
     if kernel_gerekli == True:
         krn = " kernel "
     derlesh = """#!/bin/bash
-service dbus start && pisi cp && pisi ar pisi-2.0 https://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel %s
+service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel %s
 pisi ar core https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz && pisi ar main https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz --at 2
 pisi ur
 cd /root
@@ -30,7 +30,7 @@ echo $STAT >  $3.bitti
     gelistirsh = """#!/bin/bash
 # birinci paket adi,
 # ikinci pspec adresi
-service dbus start && pisi cp && pisi ar pisi-2.0 https://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel %s
+service dbus start && pisi cp && pisi ar pisi-2.0 http://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz && pisi it --ignore-safety --ignore-dependency autoconf autogen automake binutils bison flex gawk gc gcc gnuconfig guile libmpc libtool-ltdl libtool lzo m4 make mpfr pkgconfig yacc glibc-devel %s
 pisi ar core https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz && pisi ar main https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz --at 2
 pisi ur
 cd /root
@@ -361,7 +361,7 @@ class Farm:
 
 if __name__ == "__main__":
     d = DockerGonullu()
-    f = Farm("https://ciftlik.pisilinux.org/ciftlik")
+    f = Farm("http://ciftlik.pisilinux.org/ciftlik")
     #f = Farm("http://ciftlik.pisilinux.org:5000")
     while 1:
         g = Gonullu(f, d)
@@ -375,5 +375,5 @@ docker run -itd
 -v /home/archives:/var/cache/pisi/archives 
 -v /home/ertugrul/Works/manap_se/build:/root 
 -v /home/ertugrul/Works/PisiLinux:/git 
-safaariman/pisi-chroot bash 
+ertugerata/pisi-chroot-farm bash 
 """

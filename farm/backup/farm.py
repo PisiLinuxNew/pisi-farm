@@ -1,5 +1,5 @@
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session, escape
-from flask_wtf import Form
+from flask import Flask, request, render_template, jsonify, redirect, url_for
+from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, BooleanField
 from model import *
 from github import Push
@@ -12,9 +12,6 @@ from repo import repos, REPOBASE, pisi20repo, RepoBinary, RepoView
 from werkzeug import secure_filename
 from indexer import  DockerIndexer
 from performance import *
-import traceback as tb
-import os
-
 
 
 perf = Performance()
@@ -37,7 +34,6 @@ def serialize(model):
 app = Flask(__name__)
 app.config.from_object('config')
 app.config["PROPAGATE_EXCEPTIONS"]  = True
-app.secret_key = 'YSFeWkWKPdKhUHofYb6c'
 
 class RepoForm(Form):
     repo = StringField('repo')
@@ -117,25 +113,10 @@ def binpackage(name):
         else:
             return  "%s False" % name
 
+
 @app.route('/about')
 def about():
-    return render_template('about.html')
-    
-@app.route("/findlistcore")
-def findlistcore():
-    #import os
-    os.system("python findpackagescore.py")
-    txtread = open('findcore.txt')
-    data = txtread.read()
-    return render_template("findlist.html", veri = data)
-
-@app.route("/findlistmain")
-def findlistmain():
-    #import os
-    os.system("python findpackagesmain.py")
-    txtread = open('findmain.txt')
-    data = txtread.read()
-    return render_template("findlist.html", veri = data)
+    return render_template('home.html')
 
 
 @app.route('/sources')
@@ -155,13 +136,8 @@ def queue(qtype = "all"):
         deplist = {}
         for p in packages:
             for repoid, repo  in  repos.items():
-                try:
-                    if p.paket.adi in repo.paketler.keys():
-                        deplist[p.paket.adi] = repo.depcheck(p.paket.adi)
-                except:
-                    print "sorunlu paket ", p.paket.adi
-                    tb.print_exc()
-                    pass
+                if p.paket.adi in repo.paketler.keys():
+                    deplist[p.paket.adi] = repo.depcheck(p.paket.adi)
         return deplist
     deps = {}
     limit=200
@@ -178,7 +154,7 @@ def queue(qtype = "all"):
                 durumlar.append(0)
             if durum == "partial":
                 durumlar.append(1)
-            if durum == "waitingdep": 
+            if durum == "waitingdep":
                 durumlar.append(2)
             if durum == "running":
                 durumlar.append(100)
@@ -194,7 +170,7 @@ def queue(qtype = "all"):
             return tb.format_exc()
         return render_template('queue.html', packages = vals, build_deps = deps)
 
-@app.route('/queue/return2/<int:id>')
+@app.route('/queue/return/<int:id>')
 def queue_return(id):
     #FIXME: eger saglanmamis bagimlilik varsa, burada kontrol edilmeli
     q = ses.query(Kuyruk)
@@ -204,7 +180,7 @@ def queue_return(id):
     ses.flush()
     return "<html><script> window.history.back(); </script></html>"
 
-@app.route('/queue/delete2/<int:id>')
+@app.route('/queue/delete/<int:id>')
 def queue_delete(id):
     #FIXME: eger saglanmamis bagimlilik varsa, burada kontrol edilmeli
     q = ses.query(Kuyruk)
@@ -212,12 +188,7 @@ def queue_delete(id):
     rec = q.one()
     rec.durum = 5000
     ses.flush() 
-    return "<html><script> window.history.back(); location.reload();</script></html>"
-    #return "<html><script>window.location = 'https://ciftlik.pisilinux.org/ciftlik/queue/running'</script></html>"
-
-@app.route('/login')
-def login():
-	return render_template('giris.html')
+    return "<html><script> window.history.back(); </script></html>"
 
 @app.route('/')
 @app.route('/repo/<int:id>')
@@ -234,19 +205,10 @@ def home(id = -1, pkgname = ""):
             
             return render_template('pkgdetail.html', repo = [repo], stat = stat, pkg = pkg, commits = vals)
     else:
-        try:
-            repo = ses.query(Repo).all()
-            
-        except:
-            ses.rollback()
-        finally:
-            repo = ses.query(Repo).all()
-            pass
-
+        repo = ses.query(Repo).all()
         perfdetail = perf.report()
+        return render_template('home.html', repo = repo, stat = stat, perf = perfdetail)
 
-   
-        return render_template('home.html', repo = repo, stat = stat, perf = perfdetail) 
 
 @app.route('/admin')
 def admin():
@@ -270,10 +232,6 @@ def adminAddRepo():
             return "kaydedildi"
         else:
             return "zaten varmis %d " % sayi
-		
-@app.route('/adduser')
-def adduser():
-	return render_template('admin_adduser.html')
 
 
 @app.route('/requestPkg/<string:email>')
@@ -297,10 +255,6 @@ def requestPkg(email):
     ses.add(yeniGorev)
     ses.flush()
     docker_image = docker_image_name(kuyruk.repository, kuyruk.branch)
-    repobinary = ""
-    for repoid, r in repos.items():
-        if (r.repo == kuyruk.repository) and (r.branch == kuyruk.branch):
-            repobinary = r.binary_repo_dir
     
     paketadi = ses.query(Paket).filter(Paket.id == kuyruk.paket_id).first().adi
     ses.commit()
@@ -308,7 +262,7 @@ def requestPkg(email):
     if paketadi in blacklist:
         krn = True
     if docker_image is not None:
-        cevap = {'state': states.OK, 'durum': 'ok','kuyruk_id': kuyruk.id, 'queue_id':kuyruk.id, 'paket': paketadi, 'package':paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_required':krn, 'kernel_gerekli': krn, 'dockerimage':docker_image , 'binary_repo_dir':repobinary}
+        cevap = {'state': states.OK, 'durum': 'ok','kuyruk_id': kuyruk.id, 'queue_id':kuyruk.id, 'paket': paketadi, 'package':paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_required':krn, 'kernel_gerekli': krn, 'dockerimage':docker_image }
         print ">>>>> ", cevap
         return jsonify(cevap)
     else:
@@ -409,8 +363,6 @@ def upload():
     import os
     if request.method == 'POST':
         file = request.files['file']
-        repo_bin_path = request.form['binrepopath']
-        print "repo_bin_path = ", repo_bin_path
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filename_kalan = filename[filename.find("-")+1:]
@@ -425,14 +377,13 @@ def upload():
             else:
                 pre = pa[0]
             pkgdir = "%s/%s/%s-%s/" % (pre, pa, kuyruk_id ,k.commit_id)
-            p = "%s/%s/%s/%s" % (REPOBASE, k.repository, k.branch, pkgdir)
-            print "olusturulacak dizin : ", p
+            p = "%s/%s/%s/%s" % (REPOBASE, k.repository, k.branch, pkgdir)   
             os.system("mkdir -p %s" % p)
             f = os.path.join(p, gercek_isim)
             file.save(f)
             hash = os.popen("sha1sum %s" % f, "r").readlines()[0].split()[0].strip()
             if f.endswith("pisi"):
-                index = DockerIndexer(f, repo_bin_path)
+                index = DockerIndexer(f)
             return hash 
 
 
@@ -445,7 +396,6 @@ def compiledetail(id):
     else:
         ilk = paket[0]
     return render_template("compiledetail.html", paket=paket, kuyruk = k, ilk=ilk)
-
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5000)

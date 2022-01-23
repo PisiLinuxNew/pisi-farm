@@ -2,16 +2,14 @@ __author__ = 'ilker'
 
 from lxml import objectify 
 from model import *
-import urllib
+import urllib2, os
 import requests
 import os
-from ver import Version
-
 
 REPOS = {'0':{'repo' : 'pisilinux/core',
           'branch' : 'master',
           'dockerimage' : 'pisilinux/chroot',
-          #'dockerimage' : 'safaariman/pisi-chroot',
+          #'dockerimage' : 'ertugerata/pisi-chroot-farm',
           'repo_dir' : '/var/www/html/pisilinux-core',
           'upload' : "/var/www/html/pisi-upload/",
           'repo_url' : 'https://github.com/pisilinux/core/raw/master/pisi-index.xml.xz' }}
@@ -55,9 +53,7 @@ class RepoBase:
                 if not (os.path.exists("%s/%s" % (self.repodir, repofile))):
                     self.retrieve()
         else:
-            #yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
-            #22-07-2021 erkan isik tarafindan eklendi
-            yeniHash = urllib.urlopen("%s.sha1sum" % self.repourl).readlines()[0] 
+            yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
             self.retrieve()
             print "in repo, repodir = ", self.repodir
             f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w")
@@ -127,16 +123,28 @@ class RepoView(RepoBase):
             v1 = v2 ise 0
             v1 < v2 ise -1 
             """
-
-            ver1 = Version(v1)
-            ver2 = Version(v2)
             if v1 == v2:
                 return 0
             else:
-                if ver1 > ver2:
-                    return 1
-                if ver1 < ver2:
-                    return -1
+                v1p = v1.split(".")
+                v2p = v2.split(".")
+                n1 = len(v1p)
+                if n1 > len(v2p):
+                    n1 = len(v2p)
+                for i in range(n1):
+                    if (v1p[i].isdigit() and v2p[i].isdigit()):
+                        if int(v1p[i]) > int(v2p[i]):
+                            return 1
+                        elif int(v1p[i]) < int(v2p[i]):
+                            return -1
+                        if len(v1p) > len(v2p):
+                            return 1
+                    else:
+                        #hepsi sayi olmayan ara versiyon numarasi var.
+                        # 1.3.2a gibi ornegin
+                        
+                        pass
+
 
         temp = {}
         vers = None

@@ -375,5 +375,5 @@ docker run -itd
 -v /home/archives:/var/cache/pisi/archives 
 -v /home/ertugrul/Works/manap_se/build:/root 
 -v /home/ertugrul/Works/PisiLinux:/git 
-safaariman/pisi-chroot bash 
+ertugerata/pisi-chroot-farm bash 
 """
