@@ -1,9 +1,9 @@
 __author__ = 'ilker'
 
-
-from lxml import objectify 
-from model import *
-repos = ses.query(Repo).all()
+import os
+#from lxml import objectify 
+#from model import *
+#repos = ses.query(Repo).all()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
