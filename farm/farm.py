@@ -9,7 +9,7 @@ from sqlalchemy.sql import label
 import json
 from sqlalchemy.orm import class_mapper
 from repo import repos, REPOBASE, pisi20repo, RepoBinary, RepoView
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from indexer import  DockerIndexer
 from performance import *
 import traceback as tb

@@ -198,5 +198,3 @@ if __name__ == "__main__":
     for f in files:
         x = Push(f)
         y = x.db2()
-
-
