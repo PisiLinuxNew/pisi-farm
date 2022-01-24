@@ -55,3 +55,17 @@ class ResetPasswordForm(FlaskForm):
     password2 = PasswordField(
         _l('Repeat Password'), validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField(_l('Request Password Reset'))
+
+
+
+# Farm formlari 
+
+
+class RepoForm(FlaskForm):
+    repo = StringField('repo')
+    branch = StringField('branch')
+    repourl = StringField('repourl')
+    dockerimage = StringField('dockerimage')
+    repodir = StringField('repodir')
+    enable = BooleanField('enable')
+    submit = SubmitField('Kaydet')

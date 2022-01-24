@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pisi Dagitik Derleme Ciftligi</title>
+   <!--  <strong><link rel="stylesheet" href="https://ciftlik.pisilinux.org/static/css/main.css"></strong> -->
+   
+      <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='my.css') }}">
+  <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script>
+      $(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+        $('#myTable').DataTable({
+          order: [[0,'desc']]
+        });
+      });
+    </script>
+ <style>
+	.dropdown-menu a{
+		border-bottom:1px solid #ccc;
+	}
+	
+	.dropdown-menu a:hover{
+		background:#50677b ;
+		color:#fff;
+	}
+ 
+ </style>
+  </head>
+
+  <body>
+  	
+  	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  		<div class="container">
+		<a class="navbar-brand" href="#">Pisilinux Çiftlik</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+		</button>
+
+		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+		  	<ul class="navbar-nav mr-auto">
+		  		<li></li>
+		  	</ul>
+		    <ul class="nav navbar-nav">
+				<li class="nav-item active">
+					<a class="nav-link" href="{{ url_for('home') }}">Anasayfa <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Kuyruk</a>
+					
+					<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+				<a class="dropdown-item" href="{{ url_for('queue') }}">Kuyruk Bütün işlemler</a>
+				<a class="dropdown-item" href="https://ciftlik.pisilinux.org/ciftlik/queue/running">Çalışan İşler</a>
+				<a class="dropdown-item" href="https://ciftlik.pisilinux.org/ciftlik/queue/success">Başarılı Derlenen Paketler</a>
+				<a class="dropdown-item" href="https://ciftlik.pisilinux.org/ciftlik/queue/failed">Derlenmeyen Paketler</a>
+				<a class="dropdown-item" href="https://ciftlik.pisilinux.org/ciftlik/queue/waiting">Bekleyen Paketler</a>
+				</div>
+				
+				</li>
+			
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Paket Versiyon Kontrol
+				</a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+				<a class="dropdown-item" href="{{ url_for('findlistmain')}}">Main</a>
+				<a class="dropdown-item" href="{{ url_for('findlistcore')}}">Core</a>
+				
+				</div>
+			</li>          
+			<li class="nav-item"><a class="nav-link" href="{{ url_for('packages') }}">Paketler </a></li>
+			
+		    </ul>
+		  </div>
+		  </div>
+	</nav>
+
+<!-- 
+    <header>
+      <div class="container">
+	<h1 class="logo">Pisi Ciftligi</h1>
+	<strong><nav>
+	    <ul class="menu">
+              <li><a href="{{ url_for('home') }}">Anasayfa</a></li>
+              <li><a href="{{ url_for('queue') }}">Kuyruk</a></li>
+              <li><a href="{{ url_for('compiling') }}">Calisan Isler</a></li>
+              <li><a href="{{ url_for('sources') }}">Paketler</a></li>
+              <li><a href="{{ url_for('about') }}">Hakkinda</a></li>
+	    </ul>
+ 	</nav></strong>
+      </div>
+    </header>
+ -->
+    <div class="container">
+    	
+      {% block  top %}
+     
+      {% endblock %}
+    </div>
+    <div class="container">
+      {% block content %}
+      {% endblock %}
+    </div>
+    
+  </body>
+</html>

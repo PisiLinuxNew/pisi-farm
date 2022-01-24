@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="d-inline p-2 bg-dark text-white"> Pisi Dagitik Derleme Ciftligi</div>
+   <hr>
+    
+
+   {% for r in repo %}
+   <div class="card">
+  <div class="card-header">
+    <a href="/ciftlik/repo/{{ r.id }}">{{ r.repo }}:{{ r.branch }}</a>
+        docker image: {{ r.dockerimage }}
+  </div>
+  <div class="card-body">
+    
+    <p class="card-text">
+ 
+        {% for s in  stat %}
+            {% if (r.repo == s.repository) and (r.branch == s.branch) %}
+                {% if s.durum == 0 %}
+                    Derlemeyi bekleyen : {{ s.sayi }} <br>
+                {% endif %}
+                {% if s.durum == 100 %}
+                <button type="button" class="btn btn-primary home_btn">
+					  Şu anda derlenen  <span class="badge badge-light">{{ s.sayi }}</span>
+					</button>
+                   <!--  Su anda derlenen : {{ s.sayi }} --> <br>
+                {% endif %}
+                {% if s.durum == 101 %}
+                	<button type="button" class="btn btn-danger home_btn">
+					  Basarisiz  <span class="badge badge-light">{{ s.sayi }}</span>
+					</button>
+                    <!-- Basarisiz : {{ s.sayi }}  --><br>
+                {% endif %}
+
+                {% if s.durum == 999 %}
+                    <button type="button" class="btn btn-success home_btn">
+					  Basarili bitmis  <span class="badge badge-light">{{ s.sayi }}</span>
+					</button>
+<!-- Basarili bitmis : {{ s.sayi }}  -->
+
+<br>
+                {% endif %}
+
+            {% endif %}
+        {% endfor %}
+
+
+    </p>
+   
+  </div>
+</div><br>	
+        
+    {% endfor %}
+{% endblock %}
