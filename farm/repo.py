@@ -2,6 +2,7 @@ __author__ = 'ilker'
 
 from lxml import objectify 
 from model import *
+import urllib
 import requests
 import os
 from ver import Version
@@ -17,8 +18,8 @@ REPOS = {'0':{'repo' : 'pisilinux/core',
 
 TEST="test"
 
-REPOBASE = "/var/www/vhosts/pisilinux.org/ciftlik/testrepo"
-
+#REPOBASE = "/var/www/vhosts/pisilinux.org/ciftlik/testrepo"
+REPOBASE = "~/farm/testrepo"
 class RepoBase:
     def __init__(self, repo =  "reponame", repourl = None, init = False):
         self.repourl = repourl
@@ -38,6 +39,7 @@ class RepoBase:
         """
         Repo hash degerini internette olan ile kontrol ederek, yenisi cikmis ise repoyu yeniler.
         """
+        #import urllib2
         repofile = self.repourl.split("/")[-1]
         if os.path.exists("%s/%s.sha1sum" % (self.repodir, repofile)):
             print(self.repourl)
@@ -55,7 +57,7 @@ class RepoBase:
         else:
             #yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
             #22-07-2021 erkan isik tarafindan eklendi
-            yeniHash = requests.get("%s.sha1sum" % self.repourl).text
+            yeniHash = urllib.urlopen("%s.sha1sum" % self.repourl).readlines()[0] 
             self.retrieve()
             print("in repo, repodir = ", self.repodir)
             f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w")

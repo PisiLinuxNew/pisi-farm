@@ -16,7 +16,8 @@ import lzma
 import piksemel
 
 pisirepouri = "https://ciftlik.pisilinux.org/2.0-Beta.1/pisi-index.xml.xz"
-svnrepouri  = "https://github.com/ertugerata/main/raw/master/pisi-index.xml.xz"
+svnrepouri = "https://github.com/pisilinux/main/raw/master/pisi-index.xml.xz"
+#svnrepouri  = "https://github.com/ertugerata/main/raw/master/pisi-index.xml.xz"
 #svnrepouri  = "https://github.com/ertugerata/core/raw/master/pisi-index.xml.xz"
 def getIndex(uri):
     try:
@@ -25,7 +26,7 @@ def getIndex(uri):
         else:
             rawdata = open(uri, "r").read()
     except IOError:
-        print("could not fetch %s" % uri)
+        print "could not fetch %s" % uri
         return None
 
     if uri.endswith("bz2"):
@@ -79,11 +80,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 2:
         pisirepouri = sys.argv[2]
 
-    print()
-    print("* working on %s" % svnrepouri)
+    print
+    print "* working on %s" % svnrepouri
     svnrepo = parseRepo(svnrepouri)
 
-    print("* working on %s" % pisirepouri)
+    print "* working on %s" % pisirepouri
     pisirepo = parseRepo(pisirepouri)
 
     pkglist = svnrepo.keys()
@@ -102,17 +103,20 @@ if __name__ == "__main__":
     pkgdifferent.sort()
 
     if len(pkgmissing):
-        print()
-        print("* Packages missing in %s" % pisirepouri)
+        print
+        print "* Packages missing in %s" % pisirepouri
         for p in pkgmissing:
-            print("  %s" % p)
+            print "  %s" % p
     file = open('findmain.txt','w')
     if len(pkgdifferent):
-        print()
-        print("* Packages that needs compiling")
+        print
+        print "* Packages that needs compiling"
         for p in pkgdifferent:
             i = p.split("/")[-1]
-            sonuc = "  %s  (%s > %s)\n" % (p, svnrepo[i][1], pisirepo[i][1])
+            sonuc = "\n * Packages that needs compiling\n  %s  (github Release= %s > beta Release= %s)\n" % (p, svnrepo[i][1], pisirepo[i][1])
             file.write(sonuc)
-            print(sonuc)
-    print()
+            print sonuc
+
+    print
+
+ 

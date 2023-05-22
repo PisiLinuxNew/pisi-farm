@@ -117,6 +117,8 @@ class Commit:
                         pkgName = l.split("/")[-2]
                     if pkgName not in self.modifiedPackages:
                         self.modifiedPackages.append(pkgName)
+        #print " eklenecekler :", self.modifiedPackages
+
 
     def report(self):
         print(self.id)
@@ -198,3 +200,5 @@ if __name__ == "__main__":
     for f in files:
         x = Push(f)
         y = x.db2()
+
+
