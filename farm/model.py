@@ -79,9 +79,7 @@ class Gorev(Base):
     kuyruk = relationship('Kuyruk')
 
 #engine = create_engine('sqlite:////tmp/farm.db')
-#engine = create_engine('postgresql://postgres:pisi2017@localhost/pisi')
-engine = create_engine('postgresql://pisiuser:pisi2017@localhost/pisi')
-
+engine = create_engine('postgresql://postgres:1234@localhost/pisi')
 session = sessionmaker()
 session.configure(bind=engine)
 ses = session()

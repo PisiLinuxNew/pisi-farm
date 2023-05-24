@@ -1,4 +1,7 @@
+farm/env/*
+farm/__pycache__
+farm/testrepo
+*.pyc
+*.html~
+*.py~
 
-farm/model_org.py
-farm/model.py
-farm/model_org.py

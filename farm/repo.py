@@ -3,6 +3,7 @@ __author__ = 'ilker'
 from lxml import objectify 
 from model import *
 import urllib
+import urllib.request
 import requests
 import os
 from ver import Version
@@ -19,7 +20,9 @@ REPOS = {'0':{'repo' : 'pisilinux/core',
 TEST="test"
 
 #REPOBASE = "/var/www/vhosts/pisilinux.org/ciftlik/testrepo"
-REPOBASE = "~/farm/testrepo"
+#REPOBASE = "~/farm/testrepo"
+REPOBASE = os.path.join(os.path.expanduser("~"), "farm/testrepo")
+
 class RepoBase:
     def __init__(self, repo =  "reponame", repourl = None, init = False):
         self.repourl = repourl
@@ -42,10 +45,18 @@ class RepoBase:
         #import urllib2
         repofile = self.repourl.split("/")[-1]
         if os.path.exists("%s/%s.sha1sum" % (self.repodir, repofile)):
-            print(self.repourl)
-            yeniHash = requests.get("%s.sha1sum" % self.repourl).text 
-            print(yeniHash)
+            
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+            }
+
+            req = urllib.request.Request("%s_sha1sum" % self.repourl, headers=headers)
+            yeniHash = urllib.request.urlopen(req).read().decode()
+            
+            #yeniHash = requests.get("%s.sha1sum" % self.repourl).text 
+
             eskiHash = open("%s/%s.sha1sum" % (self.repodir, repofile)).readlines()[0]
+
             if yeniHash.strip() != eskiHash.strip():
                 self.retrieve()
                 f = open("%s/%s.sha1sum" % (self.repodir, repofile),"w")
@@ -57,12 +68,26 @@ class RepoBase:
         else:
             #yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
             #22-07-2021 erkan isik tarafindan eklendi
-            yeniHash = urllib.urlopen("%s.sha1sum" % self.repourl).readlines()[0] 
+            print("E1: ",self.repourl)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+            }
+
+            req = urllib.request.Request("%s_sha1sum" % self.repourl, headers=headers)
+            yeniHash = urllib.request.urlopen(req).read().decode()
+
+            #yeniHash = urllib.request.urlopen(sha1sum_url).readline().decode()
+            #yeniHash = urllib.urlopen("%s.sha1sum" % self.repourl).readlines()[0] 
+            print("E2: "+yeniHash)
             self.retrieve()
-            print("in repo, repodir = ", self.repodir)
-            f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w")
-            f.write(yeniHash)
-            f.close()
+            print("in repo, repodir = ", self.repodir," File: ",repofile)
+            dosya_yolu ="%s/%s.sha1sum" % (self.repodir, repofile)
+
+            with open(dosya_yolu ,"w+") as f:
+                f.write(yeniHash)
+                f.close()
+
+            #f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w+")
 
     def retrieve(self):
         """
@@ -234,7 +259,9 @@ class RepoView(RepoBase):
         RepoBase.init(self)
         self.xmlOku()
 
-pisi20repo = RepoBinary("pisi-2.0-test", "https://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz")
+#pisi20repo = RepoBinary("pisi-2.0-test", "https://ciftlik.pisilinux.org/pisi-2.0/pisi-index.xml.xz")
+pisi20repo = RepoBinary("pisi-2.0-test","https://ciftlik.pisilinux.org/2.0-Beta.1/pisi-index.xml")
+
 
 repos = {}
 rp = ses.query(Repo).all()
