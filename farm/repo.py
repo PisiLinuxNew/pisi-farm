@@ -58,6 +58,8 @@ class RepoBase:
 
             eskiHash = open("%s/%s.sha1sum" % (self.repodir, repofile)).readlines()[0]
 
+            print("eski hash: ", eskiHash)
+
             if yeniHash.strip() != eskiHash.strip():
                 self.retrieve()
                 f = open("%s/%s.sha1sum" % (self.repodir, repofile),"w")
@@ -265,8 +267,10 @@ pisi20repo = RepoBinary("pisi-2.0-test","https://ciftlik.pisilinux.org/2.0-Beta.
 
 repos = {}
 rp = ses.query(Repo).all()
+
 for r in rp:
-    repos[r.id] = RepoView(r, True, RepoBinary("deneme", r.binrepo))
+    #repos[r.id] = RepoView(r, True, RepoBinary("deneme", r.binrepo))
+    print("veritabanından gelen: ",r)
 
 
 
