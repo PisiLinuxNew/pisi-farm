@@ -1,21 +1,225 @@
-  desktop/kde/applications/blogilo  (8 > 6)
-  desktop/kde/applications/konversation  (24 > 23)
-  desktop/kde/applications/pim-storage-service-manager  (8 > 1)
-  desktop/kde/bindings/python3-kde5  (8 > 7)
-  desktop/kde/graphics/libkface  (14 > 8)
-  desktop/kde/multimedia/kmix  (29 > 28)
-  desktop/pisilinux/package-manager  (14 > 15)
-  hardware/mobile/usbmuxd  (6 > 4)
-  hardware/powermanagement/acpid  (5 > 4)
-  hardware/printer/cups-filters  (12 > 13)
-  multimedia/graphics/imlib2  (5 > 6)
-  multimedia/graphics/libjpeg-turbo  (7 > 8)
-  multimedia/nightingale  (3 > 1)
-  multimedia/sound/deadbeef  (9 > 10)
-  office/calligra/calligra  (6 > 4)
-  office/libreoffice/libreoffice  (15 > 13)
-  office/misc/mupdf  (5 > 6)
-  office/misc/qpdf  (7 > 8)
-  office/spellcheck/zemberek-office  (3 > 4)
-  programming/language/python/python-docker-py  (4 > 3)
-  programming/misc/grantlee-qt5  (6 > 7)
+
+ * Packages that needs compiling
+  accessibility/liblouis  (github Release= 9 > beta Release= 8)
+
+ * Packages that needs compiling
+  desktop/budgie/budgie-control-center  (github Release= 4 > beta Release= 3)
+
+ * Packages that needs compiling
+  desktop/font/sil-lateef-font  (github Release= 3 > beta Release= 2)
+
+ * Packages that needs compiling
+  desktop/gnome/apps/nautilus-python  (github Release= 3 > beta Release= 2)
+
+ * Packages that needs compiling
+  desktop/gnome/apps/polari  (github Release= 7 > beta Release= 6)
+
+ * Packages that needs compiling
+  desktop/gnome/apps/simple-scan  (github Release= 6 > beta Release= 5)
+
+ * Packages that needs compiling
+  desktop/kde/bindings/python3-kde5  (github Release= 10 > beta Release= 7)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/aura-browser  (github Release= 7 > beta Release= 8)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/bluedevil  (github Release= 71 > beta Release= 72)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/breeze-grub  (github Release= 69 > beta Release= 70)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/breeze-plymouth  (github Release= 70 > beta Release= 71)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/discover  (github Release= 76 > beta Release= 77)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/drkonqi  (github Release= 73 > beta Release= 74)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/kactivitymanagerd  (github Release= 70 > beta Release= 71)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/kdecorations  (github Release= 70 > beta Release= 71)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/kgamma5  (github Release= 71 > beta Release= 72)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/kpipewire  (github Release= 8 > beta Release= 9)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/ksshaskpass  (github Release= 70 > beta Release= 71)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/ksysguard  (github Release= 31 > beta Release= 50)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/kwallet-pam  (github Release= 71 > beta Release= 72)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/kwayland-integration  (github Release= 71 > beta Release= 72)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/kwrited  (github Release= 71 > beta Release= 72)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/layer-shell-qt  (github Release= 25 > beta Release= 26)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/libkscreen  (github Release= 70 > beta Release= 71)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/libksysguard  (github Release= 70 > beta Release= 71)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/milou  (github Release= 71 > beta Release= 72)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/oxygen-sounds  (github Release= 7 > beta Release= 8)
+
+ * Packages that needs compiling
+  desktop/kde/plasma/system-settings  (github Release= 70 > beta Release= 42)
+
+ * Packages that needs compiling
+  desktop/misc/ayatana-libappindicator  (github Release= 4 > beta Release= 1)
+
+ * Packages that needs compiling
+  desktop/qt6-quick3d  (github Release= 2 > beta Release= 1)
+
+ * Packages that needs compiling
+  desktop/toolkit/gtk/pangox-compat  (github Release= 3 > beta Release= 2)
+
+ * Packages that needs compiling
+  desktop/toolkit/qt6/qt6-quick3dphysics  (github Release= 2 > beta Release= 1)
+
+ * Packages that needs compiling
+  desktop/toolkit/qt6/qt6ct  (github Release= 1 > beta Release= 2)
+
+ * Packages that needs compiling
+  desktop/xfce/base/xfce4-dev-tools  (github Release= 6 > beta Release= 5)
+
+ * Packages that needs compiling
+  desktop/xfce/lookandfeel/icon-theme-xfce4  (github Release= 1 > beta Release= 3)
+
+ * Packages that needs compiling
+  hardware/mobile/usbmuxd  (github Release= 8 > beta Release= 4)
+
+ * Packages that needs compiling
+  hardware/virtualization/virt-wrapper  (github Release= 5 > beta Release= 3)
+
+ * Packages that needs compiling
+  multimedia/editor/vapoursynth  (github Release= 3 > beta Release= 1)
+
+ * Packages that needs compiling
+  multimedia/graphics/gegl02  (github Release= 11 > beta Release= 8)
+
+ * Packages that needs compiling
+  multimedia/graphics/hugin  (github Release= 15 > beta Release= 14)
+
+ * Packages that needs compiling
+  multimedia/sound/gsound  (github Release= 2 > beta Release= 1)
+
+ * Packages that needs compiling
+  multimedia/sound/lash  (github Release= 5 > beta Release= 4)
+
+ * Packages that needs compiling
+  multimedia/video/gstreamer  (github Release= 20 > beta Release= 9)
+
+ * Packages that needs compiling
+  multimedia/video/gstreamer-vaapi  (github Release= 16 > beta Release= 5)
+
+ * Packages that needs compiling
+  network/misc/c-ares  (github Release= 7 > beta Release= 4)
+
+ * Packages that needs compiling
+  network/misc/webkit-gtk2  (github Release= 8 > beta Release= 7)
+
+ * Packages that needs compiling
+  office/docbook/pandoc-bin  (github Release= 1 > beta Release= 2)
+
+ * Packages that needs compiling
+  office/spellcheck/libvoikko  (github Release= 1 > beta Release= 2)
+
+ * Packages that needs compiling
+  programming/language/python/cython  (github Release= 10 > beta Release= 7)
+
+ * Packages that needs compiling
+  programming/language/python/python-PyYAML  (github Release= 10 > beta Release= 9)
+
+ * Packages that needs compiling
+  programming/language/python/python-docker-py  (github Release= 4 > beta Release= 3)
+
+ * Packages that needs compiling
+  programming/language/python3/python3-sanic  (github Release= 7 > beta Release= 6)
+
+ * Packages that needs compiling
+  programming/language/python3/python3-wrapt  (github Release= 3 > beta Release= 2)
+
+ * Packages that needs compiling
+  programming/library/libdispatch  (github Release= 4 > beta Release= 2)
+
+ * Packages that needs compiling
+  programming/misc/boost  (github Release= 18 > beta Release= 14)
+
+ * Packages that needs compiling
+  programming/misc/dbus-c++  (github Release= 6 > beta Release= 5)
+
+ * Packages that needs compiling
+  programming/misc/json-glib  (github Release= 13 > beta Release= 9)
+
+ * Packages that needs compiling
+  programming/misc/libdbusmenu-qt  (github Release= 6 > beta Release= 2)
+
+ * Packages that needs compiling
+  programming/misc/libgweather  (github Release= 4 > beta Release= 3)
+
+ * Packages that needs compiling
+  programming/misc/libxklavier  (github Release= 5 > beta Release= 4)
+
+ * Packages that needs compiling
+  science/mathematics/pspp  (github Release= 4 > beta Release= 5)
+
+ * Packages that needs compiling
+  system/boot/efivar  (github Release= 11 > beta Release= 12)
+
+ * Packages that needs compiling
+  util/archive/zstd  (github Release= 1 > beta Release= 7)
+
+ * Packages that needs compiling
+  util/misc/krusader  (github Release= 4 > beta Release= 2)
+
+ * Packages that needs compiling
+  util/misc/tidy  (github Release= 5 > beta Release= 4)
+
+ * Packages that needs compiling
+  x11/library/DirectX-headers  (github Release= 1 > beta Release= 2)
+
+ * Packages that needs compiling
+  x11/misc/beignet  (github Release= 2 > beta Release= 1)
+
+ * Packages that needs compiling
+  x11/server/xorg-server  (github Release= 31 > beta Release= 20)
+
+ * Packages that needs compiling
+  x11/vulkan/glslang  (github Release= 10 > beta Release= 11)
+
+ * Packages that needs compiling
+  x11/vulkan/spirv-headers  (github Release= 11 > beta Release= 12)
+
+ * Packages that needs compiling
+  x11/vulkan/spirv-llvm  (github Release= 5 > beta Release= 6)
+
+ * Packages that needs compiling
+  x11/vulkan/spirv-tools  (github Release= 12 > beta Release= 13)
+
+ * Packages that needs compiling
+  x11/vulkan/vulkan  (github Release= 14 > beta Release= 15)
+
+ * Packages that needs compiling
+  x11/vulkan/vulkan-headers  (github Release= 14 > beta Release= 15)
+
+ * Packages that needs compiling
+  x11/vulkan/vulkan-tools  (github Release= 14 > beta Release= 17)

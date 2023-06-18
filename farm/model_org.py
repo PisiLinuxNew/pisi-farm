@@ -90,7 +90,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         lines = codecs.open(sys.argv[1],encoding="utf-8").readlines()
         for l in lines:
-            print(l[:43].strip(),l[43:].strip())
+            print l[:43].strip(),l[43:].strip()
             p = Paket(adi=l[:43].strip(), aciklama = l[43:].strip() )
             ses.add(p)
             ses.commit()

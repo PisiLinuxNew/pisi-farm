@@ -1,0 +1,7 @@
+farm/env/*
+farm/__pycache__
+farm/testrepo
+*.pyc
+*.html~
+*.py~
+

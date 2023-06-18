@@ -57,7 +57,7 @@ class RepoBase:
         else:
             yeniHash = urllib2.urlopen("%s.sha1sum" % self.repourl).readlines()[0]
             self.retrieve()
-            print("in repo, repodir = ", self.repodir)
+            print "in repo, repodir = ", self.repodir
             f = open("%s/%s.sha1sum" % (self.repodir, repofile) ,"w")
             f.write(yeniHash)
             f.close()
@@ -115,7 +115,7 @@ class RepoView(RepoBase):
             self.init()
         else:
             self.xmlOku()
-        print(self.id, self.repo, self.branch, self.dockerimage, self.repodir, self.repourl, self.enable)
+        print self.id, self.repo, self.branch, self.dockerimage, self.repodir, self.repourl, self.enable
 
     def depcheck(self, pname):
         def vercheck(v1, v2):

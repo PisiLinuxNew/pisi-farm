@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session, escape
+from flask import Flask, request, render_template, jsonify, redirect, url_for, session
+from markupsafe import escape
 from flask_wtf import Form
 from wtforms import StringField, SubmitField, BooleanField
 from model import *
@@ -9,7 +10,7 @@ from sqlalchemy.sql import label
 import json
 from sqlalchemy.orm import class_mapper
 from repo import repos, REPOBASE, pisi20repo, RepoBinary, RepoView
-from werkzeug.utils import secure_filename
+from werkzeug import secure_filename
 from indexer import  DockerIndexer
 from performance import *
 import traceback as tb
@@ -309,7 +310,7 @@ def requestPkg(email):
         krn = True
     if docker_image is not None:
         cevap = {'state': states.OK, 'durum': 'ok','kuyruk_id': kuyruk.id, 'queue_id':kuyruk.id, 'paket': paketadi, 'package':paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_required':krn, 'kernel_gerekli': krn, 'dockerimage':docker_image , 'binary_repo_dir':repobinary}
-        print(">>>>> ", cevap)
+        print (">>>>> ", cevap)
         return jsonify(cevap)
     else:
         cevap = {'state': states.NODOCKERIMAGE, 'message' : 'No docker image set for repository %s  branch %s' % (kuyruk.repository, kuyruk.branch) }
@@ -369,10 +370,10 @@ def gitcommit(fname):
         tar = tar.replace("Z","").replace("T"," ")
         t = datetime.strptime(tar,"%Y-%m-%d %H:%M:%S")
         for _id, com in p.db2().items():
-            print( "gitcommit, com.modified :",com['modified'])
+            print ("gitcommit, com.modified :",com['modified'])
             id = com['id']
             url = com['url']
-            print(com['timestamp'], len(com['modified']))
+            print (com['timestamp'], len(com['modified']))
             for pkg in com['modified']:
                 pkg = pkg.strip()
                 pkgid = paketID(pkg)
