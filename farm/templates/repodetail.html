@@ -6,7 +6,7 @@
   </div>
 
    {% for r in repo %}
-        <a href="/ciftlik/repo/{{ r.id }}">{{ r.repo }}:{{ r.branch }}</a>
+        <a href="/repo/{{ r.id }}">{{ r.repo }}:{{ r.branch }}</a>
         docker image: {{ r.dockerimage }}  <br>
         {% for s in  stat %}
             {% if (r.repo == s.repository) and (r.branch == s.branch) %}
@@ -33,7 +33,7 @@
 	  </tr>
 	{% for k  in pkgs  %}
 	   <tr>
-	     <td> <a href="/ciftlik/repo/{{ r.id}}/{{ k  }}"</a>{{k}} </td>
+	     <td> <a href="/repo/{{ r.id}}/{{ k  }}"</a>{{k}} </td>
 	   </tr>
 	{% endfor %}
 	</table>

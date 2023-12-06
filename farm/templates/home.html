@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="d-inline p-2 bg-dark text-white"> Pisi Dagitik Derleme Ciftligi</div>
+<div class="d-inline p-2 bg-dark text-white mt-2"> Pisi Daıtık Derleme Çiftligi</div>
    <hr>
     
 
    {% for r in repo %}
    <div class="card">
   <div class="card-header">
-    <a href="/ciftlik/repo/{{ r.id }}">{{ r.repo }}:{{ r.branch }}</a>
+    <a href="/repo/{{ r.id }}">{{ r.repo }}:{{ r.branch }}</a>
         docker image: {{ r.dockerimage }}
   </div>
   <div class="card-body">

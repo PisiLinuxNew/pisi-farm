@@ -121,9 +121,9 @@ class Commit:
 
 
     def report(self):
-        print(self.id)
+        print (self.id)
         for l in self.modified:
-            print("    ",l)
+            print ("    ",l)
 
     def db(self):
         if len(self.modifiedPackages) > 0:
@@ -173,7 +173,7 @@ class Push:
                 self.commits[temp.id] = temp
 
     def pprint(self):
-        print(json.dumps(self.data, indent = 4))
+        print (json.dumps(self.data, indent = 4))
 
     def html(self):
         commits = "Tarih : %s   Branch : %s <table border=1>" % (self.fname, self.ref)
