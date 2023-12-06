@@ -109,4 +109,4 @@ class Version:
 if __name__ == "__main__":
     s1 = Version("1.21.12a")
     s2 = Version("1.21")
-    print(s2 < s1)
+    print( s2 < s1)

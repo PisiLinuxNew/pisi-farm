@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, jsonify, redirect, url_for, session, flash
+# -*- coding: utf-8 -*-
+from flask import Flask, request, render_template, jsonify, redirect, url_for, session, escape
 from flask_wtf import Form
 from wtforms import StringField, SubmitField, BooleanField
 from model import *
@@ -9,17 +10,11 @@ from sqlalchemy.sql import label
 import json
 from sqlalchemy.orm import class_mapper
 from repo import repos, REPOBASE, pisi20repo, RepoBinary, RepoView
-#from werkzeug import secure_filename
+from werkzeug import secure_filename
 from indexer import  DockerIndexer
 from performance import *
 import traceback as tb
 import os
-import hashlib
-from werkzeug.utils import escape, secure_filename
-from flask_sqlalchemy import SQLAlchemy
-from flask_session import Session
-
-from function import *
 
 
 
@@ -42,11 +37,8 @@ def serialize(model):
 
 app = Flask(__name__)
 app.config.from_object('config')
-app.secret_key = 'YSFeWkWKPdKhUHofYb6c'
 app.config["PROPAGATE_EXCEPTIONS"]  = True
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-
+app.secret_key = 'YSFeWkWKPdKhUHofYb6c'
 
 class RepoForm(Form):
     repo = StringField('repo')
@@ -110,6 +102,8 @@ def docker_image_name(r,b):
     return None
 
 
+
+
 @app.route('/packages')
 #@app.route('/packages/<int:page>')
 def packages():
@@ -166,7 +160,7 @@ def queue(qtype = "all"):
                     if p.paket.adi in repo.paketler.keys():
                         deplist[p.paket.adi] = repo.depcheck(p.paket.adi)
                 except:
-                    print ("sorunlu paket ", p.paket.adi)
+                    print "sorunlu paket ", p.paket.adi
                     tb.print_exc()
                     pass
         return deplist
@@ -222,31 +216,14 @@ def queue_delete(id):
     return "<html><script> window.history.back(); location.reload();</script></html>"
     #return "<html><script>window.location = 'https://ciftlik.pisilinux.org/ciftlik/queue/running'</script></html>"
 
-@app.route('/login', methods = ['POST','GET'])
+@app.route('/login')
 def login():
-    if request.method=='POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        hash_pass = hashlib.md5(password.encode('utf-8')).hexdigest()
-        user = checkLogin(email, hash_pass)
-        #user = ses.query(User).filter(User.user_email == email, User.user_password == hash_pass).first()
-        if user:            
-            session['login'] = True
-            session['username'] = user.user_name
-            return redirect(url_for('home'))
-        else:
-            return render_template('login.html')    
-    return render_template('login.html')
+	return render_template('giris.html')
 
 @app.route('/')
 @app.route('/repo/<int:id>')
 @app.route('/repo/<int:id>/<pkgname>')
 def home(id = -1, pkgname = ""):
-    #login control
-    if not session.get('login'):
-       return redirect(url_for('login'))   
-    #login control
-
     stat = repostat(id)
     if id > -1:
         repo = repos[id]
@@ -333,11 +310,13 @@ def requestPkg(email):
         krn = True
     if docker_image is not None:
         cevap = {'state': states.OK, 'durum': 'ok','kuyruk_id': kuyruk.id, 'queue_id':kuyruk.id, 'paket': paketadi, 'package':paketadi, 'commit_id':kuyruk.commit_id, 'repo': kuyruk.repository, 'branch': kuyruk.branch , 'kernel_required':krn, 'kernel_gerekli': krn, 'dockerimage':docker_image , 'binary_repo_dir':repobinary}
-        print(">>>>> ", cevap)
+        print ">>>>> ", cevap
         return jsonify(cevap)
     else:
         cevap = {'state': states.NODOCKERIMAGE, 'message' : 'No docker image set for repository %s  branch %s' % (kuyruk.repository, kuyruk.branch) }
         return jsonify(cevap)
+
+
 
 @app.route('/parameter')
 def parameters():
@@ -391,10 +370,10 @@ def gitcommit(fname):
         tar = tar.replace("Z","").replace("T"," ")
         t = datetime.strptime(tar,"%Y-%m-%d %H:%M:%S")
         for _id, com in p.db2().items():
-            print( "gitcommit, com.modified :",com['modified'])
+            print "gitcommit, com.modified :",com['modified']
             id = com['id']
             url = com['url']
-            print (com['timestamp'], len(com['modified']))
+            print com['timestamp'], len(com['modified'])
             for pkg in com['modified']:
                 pkg = pkg.strip()
                 pkgid = paketID(pkg)
@@ -421,7 +400,7 @@ def gitcommit(fname):
                     ses.commit() 
                     ses.flush()
                 else:
-                    print (pkg, "  sorun var")
+                    print pkg, "  sorun var"
         return p.ref
     return p.ref
 
@@ -432,7 +411,7 @@ def upload():
     if request.method == 'POST':
         file = request.files['file']
         repo_bin_path = request.form['binrepopath']
-        print ("repo_bin_path = ", repo_bin_path)
+        print "repo_bin_path = ", repo_bin_path
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filename_kalan = filename[filename.find("-")+1:]
@@ -448,7 +427,7 @@ def upload():
                 pre = pa[0]
             pkgdir = "%s/%s/%s-%s/" % (pre, pa, kuyruk_id ,k.commit_id)
             p = "%s/%s/%s/%s" % (REPOBASE, k.repository, k.branch, pkgdir)
-            print( "olusturulacak dizin : ", p)
+            print "olusturulacak dizin : ", p
             os.system("mkdir -p %s" % p)
             f = os.path.join(p, gercek_isim)
             file.save(f)
@@ -470,5 +449,4 @@ def compiledetail(id):
 
 
 if __name__ == '__main__':
-    #app.run(debug=True, host="0.0.0.0", port=5000)
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)

@@ -7,7 +7,8 @@ import sqlalchemy as sql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+from flask import session
+from function import *
 Base = declarative_base()
 
 """
@@ -78,14 +79,26 @@ class Gorev(Base):
     kuyruk_id = Column(Integer, ForeignKey("kuyruk.id"))
     kuyruk = relationship('Kuyruk')
 
+class User(Base):
+    __tablename__ = "user"
+    user_id = Column(Integer, primary_key=True)
+    user_name = Column(String(100), nullable=False)
+    user_email = Column(String(100),nullable=False)
+    user_password = Column(String(100),nullable=False)
+
 #engine = create_engine('sqlite:////tmp/farm.db')
-engine = create_engine('postgresql://postgres:1234@localhost/pisi')
-session = sessionmaker()
-session.configure(bind=engine)
-ses = session()
+#engine = create_engine('postgresql://postgres:pisi2017@localhost/pisi')
+engine = create_engine('postgresql://postgres:12345678@localhost/pisi')
+Base.metadata.create_all(engine)
+dbsession = sessionmaker()
+dbsession.configure(bind=engine)
+ses = dbsession()
+
+def checkLogin(email, password):
+    user = ses.query(User).filter_by(user_email=email, user_password=password).first()
+    return user
 
 if __name__ == "__main__":
-    Base.metadata.create_all(engine)
     import sys, codecs
     if len(sys.argv) > 1:
         lines = codecs.open(sys.argv[1],encoding="utf-8").readlines()
